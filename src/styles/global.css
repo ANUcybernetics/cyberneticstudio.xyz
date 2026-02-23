@@ -1,0 +1,112 @@
+@import "./fonts.css";
+
+:root {
+  --color-bg: #000;
+  --color-fg: #fff;
+  --color-fg-muted: #999;
+  --color-accent: #ccff00;
+  --color-accent-dim: #99cc00;
+  --color-surface: #111;
+  --color-border: #333;
+
+  --font-display: "Tilt Neon", system-ui, sans-serif;
+  --font-body: "Space Grotesk", system-ui, sans-serif;
+  --font-mono: ui-monospace, "Cascadia Code", "Source Code Pro", Menlo, Consolas,
+    monospace;
+
+  --space-xs: 0.25rem;
+  --space-sm: 0.5rem;
+  --space-md: 1rem;
+  --space-lg: 2rem;
+  --space-xl: 4rem;
+  --space-2xl: 8rem;
+
+  --width-content: 48rem;
+  --width-wide: 72rem;
+
+  --transition-fast: 150ms ease;
+  --transition-base: 300ms ease;
+
+  --glow-accent: 0 0 0.5rem rgba(204, 255, 0, 0.3),
+    0 0 1.5rem rgba(204, 255, 0, 0.15), 0 0 3rem rgba(204, 255, 0, 0.05);
+  --glow-accent-strong: 0 0 0.5rem rgba(204, 255, 0, 0.5),
+    0 0 2rem rgba(204, 255, 0, 0.3), 0 0 4rem rgba(204, 255, 0, 0.1);
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  color-scheme: dark;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  font-family: var(--font-body);
+  font-size: 1rem;
+  line-height: 1.6;
+  color: var(--color-fg);
+  background-color: var(--color-bg);
+  min-height: 100dvh;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  font-family: var(--font-display);
+  font-weight: 400;
+  line-height: 1.2;
+  text-wrap: balance;
+}
+
+h1 {
+  font-size: clamp(2rem, 5vw, 3.5rem);
+}
+
+h2 {
+  font-size: clamp(1.5rem, 3vw, 2.25rem);
+}
+
+h3 {
+  font-size: clamp(1.25rem, 2vw, 1.5rem);
+}
+
+a {
+  color: var(--color-accent);
+  text-decoration: none;
+  transition: text-shadow var(--transition-fast);
+}
+
+a:hover {
+  text-shadow: var(--glow-accent);
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+code {
+  font-family: var(--font-mono);
+  font-size: 0.875em;
+}
+
+.glow {
+  text-shadow: var(--glow-accent);
+}
+
+.glow-strong {
+  text-shadow: var(--glow-accent-strong);
+}
+
+.glow-box {
+  box-shadow: var(--glow-accent);
+}

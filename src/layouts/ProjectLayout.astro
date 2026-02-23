@@ -1,0 +1,88 @@
+---
+import BaseLayout from "./BaseLayout.astro";
+
+interface Props {
+  title: string;
+  description: string;
+  date: string;
+  tags?: string[];
+}
+
+const { title, description, date, tags = [] } = Astro.props;
+const formattedDate = new Date(date).toLocaleDateString("en-AU", {
+  year: "numeric",
+  month: "long",
+  day: "numeric",
+});
+---
+
+<BaseLayout title={title} description={description}>
+  <article class="project">
+    <header class="project-header">
+      <h1 class="glow-strong">{title}</h1>
+      <p class="project-meta">
+        <time datetime={date}>{formattedDate}</time>
+      </p>
+      {tags.length > 0 && (
+        <ul class="project-tags">
+          {tags.map((tag) => <li>{tag}</li>)}
+        </ul>
+      )}
+    </header>
+    <div class="project-content">
+      <slot />
+    </div>
+  </article>
+</BaseLayout>
+
+<style>
+  .project {
+    max-width: var(--width-content);
+    margin: 0 auto;
+  }
+
+  .project-header {
+    margin-bottom: var(--space-xl);
+    padding-bottom: var(--space-lg);
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .project-meta {
+    color: var(--color-fg-muted);
+    margin-top: var(--space-sm);
+  }
+
+  .project-tags {
+    display: flex;
+    gap: var(--space-sm);
+    list-style: none;
+    margin-top: var(--space-md);
+    flex-wrap: wrap;
+  }
+
+  .project-tags li {
+    font-size: 0.75rem;
+    padding: var(--space-xs) var(--space-sm);
+    border: 1px solid var(--color-border);
+    border-radius: 0.25rem;
+    color: var(--color-fg-muted);
+  }
+
+  .project-content {
+    line-height: 1.8;
+  }
+
+  .project-content :global(h2) {
+    margin-top: var(--space-xl);
+    margin-bottom: var(--space-md);
+  }
+
+  .project-content :global(p) {
+    margin-bottom: var(--space-md);
+  }
+
+  .project-content :global(img) {
+    border-radius: 0.5rem;
+    margin: var(--space-lg) 0;
+  }
+</style>

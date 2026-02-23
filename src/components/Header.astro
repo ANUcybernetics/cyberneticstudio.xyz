@@ -1,0 +1,53 @@
+---
+const pathname = Astro.url.pathname;
+---
+
+<header class="site-header">
+  <nav>
+    <a href="/" class="site-title glow-strong">Cybernetic Studio</a>
+    <ul>
+      <li><a href="/projects/" aria-current={pathname.startsWith("/projects") ? "page" : undefined}>Projects</a></li>
+      <li><a href="/experiments/" aria-current={pathname.startsWith("/experiments") ? "page" : undefined}>Experiments</a></li>
+    </ul>
+  </nav>
+</header>
+
+<style>
+  .site-header {
+    padding: var(--space-md) var(--space-lg);
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  nav {
+    max-width: var(--width-wide);
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: var(--space-md);
+  }
+
+  .site-title {
+    font-family: var(--font-display);
+    font-size: 1.25rem;
+    color: var(--color-accent);
+  }
+
+  ul {
+    display: flex;
+    list-style: none;
+    gap: var(--space-lg);
+  }
+
+  a {
+    color: var(--color-fg-muted);
+    transition: color var(--transition-fast), text-shadow var(--transition-fast);
+  }
+
+  a:hover,
+  a[aria-current="page"] {
+    color: var(--color-fg);
+    text-shadow: var(--glow-accent);
+  }
+</style>

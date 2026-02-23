@@ -1,0 +1,8 @@
+---
+import ExperimentLayout from "../../../layouts/ExperimentLayout.astro";
+import App from "../../../experiments/hello-world/App.vue";
+---
+
+<ExperimentLayout title="Hello World" description="A minimal Vue SPA experiment">
+  <App client:only="vue" />
+</ExperimentLayout>

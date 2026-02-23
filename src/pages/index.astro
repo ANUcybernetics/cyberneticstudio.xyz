@@ -1,0 +1,60 @@
+---
+import { getCollection } from "astro:content";
+import BaseLayout from "../layouts/BaseLayout.astro";
+import ProjectCard from "../components/ProjectCard.astro";
+
+const allProjects = await getCollection("projects");
+const featured = allProjects
+  .filter((p) => p.data.featured)
+  .sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
+---
+
+<BaseLayout title="Home">
+  <section class="hero">
+    <h1 class="glow-strong">Cybernetic Studio</h1>
+    <p class="tagline">Creative technology projects and experiments</p>
+  </section>
+
+  {featured.length > 0 && (
+    <section class="featured">
+      <h2>Featured projects</h2>
+      <div class="project-grid">
+        {featured.map((project) => (
+          <ProjectCard
+            title={project.data.title}
+            description={project.data.description}
+            slug={project.id}
+            tags={project.data.tags}
+          />
+        ))}
+      </div>
+    </section>
+  )}
+</BaseLayout>
+
+<style>
+  .hero {
+    text-align: center;
+    padding: var(--space-2xl) 0;
+  }
+
+  .tagline {
+    color: var(--color-fg-muted);
+    font-size: 1.25rem;
+    margin-top: var(--space-md);
+  }
+
+  .featured {
+    margin-top: var(--space-xl);
+  }
+
+  .featured h2 {
+    margin-bottom: var(--space-lg);
+  }
+
+  .project-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(20rem, 1fr));
+    gap: var(--space-lg);
+  }
+</style>

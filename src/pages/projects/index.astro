@@ -1,0 +1,35 @@
+---
+import { getCollection } from "astro:content";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import ProjectCard from "../../components/ProjectCard.astro";
+
+const allProjects = (await getCollection("projects")).sort(
+  (a, b) => b.data.date.getTime() - a.data.date.getTime(),
+);
+---
+
+<BaseLayout title="Projects" description="All Cybernetic Studio projects">
+  <h1 class="glow">Projects</h1>
+  <div class="project-grid">
+    {allProjects.map((project) => (
+      <ProjectCard
+        title={project.data.title}
+        description={project.data.description}
+        slug={project.id}
+        tags={project.data.tags}
+      />
+    ))}
+  </div>
+</BaseLayout>
+
+<style>
+  h1 {
+    margin-bottom: var(--space-xl);
+  }
+
+  .project-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(20rem, 1fr));
+    gap: var(--space-lg);
+  }
+</style>
