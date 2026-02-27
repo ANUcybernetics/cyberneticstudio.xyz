@@ -4,12 +4,12 @@
   --color-bg: #000;
   --color-fg: #fff;
   --color-fg-muted: #999;
-  --color-accent: #ccff00;
-  --color-accent-dim: #99cc00;
+  --color-accent: #e6ff44;
+  --color-accent-dim: #b8cc36;
   --color-surface: #111;
   --color-border: #333;
 
-  --font-display: "Tilt Neon", system-ui, sans-serif;
+  --font-display: "Space Grotesk", system-ui, sans-serif;
   --font-body: "Space Grotesk", system-ui, sans-serif;
   --font-mono: ui-monospace, "Cascadia Code", "Source Code Pro", Menlo, Consolas,
     monospace;
@@ -27,10 +27,10 @@
   --transition-fast: 150ms ease;
   --transition-base: 300ms ease;
 
-  --glow-accent: 0 0 0.5rem rgba(204, 255, 0, 0.3),
-    0 0 1.5rem rgba(204, 255, 0, 0.15), 0 0 3rem rgba(204, 255, 0, 0.05);
-  --glow-accent-strong: 0 0 0.5rem rgba(204, 255, 0, 0.5),
-    0 0 2rem rgba(204, 255, 0, 0.3), 0 0 4rem rgba(204, 255, 0, 0.1);
+  --glow-accent: 0 0 0.5rem rgba(230, 255, 68, 0.3),
+    0 0 1.5rem rgba(230, 255, 68, 0.15), 0 0 3rem rgba(230, 255, 68, 0.05);
+  --glow-accent-strong: 0 0 0.5rem rgba(230, 255, 68, 0.5),
+    0 0 2rem rgba(230, 255, 68, 0.3), 0 0 4rem rgba(230, 255, 68, 0.1);
 }
 
 *,

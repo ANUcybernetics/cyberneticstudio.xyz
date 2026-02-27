@@ -57,6 +57,6 @@
 
   button:hover {
     box-shadow: var(--glow-accent);
-    background: rgba(204, 255, 0, 0.05);
+    background: rgba(230, 255, 68, 0.05);
   }
 </style>
