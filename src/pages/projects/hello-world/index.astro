@@ -1,0 +1,8 @@
+---
+import StandaloneLayout from "../../../layouts/StandaloneLayout.astro";
+import App from "../../../experiments/hello-world/App.svelte";
+---
+
+<StandaloneLayout title="Hello World" description="A minimal interactive Svelte experiment">
+  <App client:only="svelte" />
+</StandaloneLayout>

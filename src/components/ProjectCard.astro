@@ -1,23 +1,40 @@
 ---
+import { Image } from "astro:assets";
+
 interface Props {
   title: string;
   description: string;
   slug: string;
   tags?: string[];
+  hero?: ImageMetadata;
+  heroAlt?: string;
 }
 
-const { title, description, slug, tags = [] } = Astro.props;
+const { title, description, slug, tags = [], hero, heroAlt } = Astro.props;
 ---
 
 <article class="project-card">
   <a href={`/projects/${slug}/`}>
-    <h3 class="card-title">{title}</h3>
-    <p class="card-description">{description}</p>
-    {tags.length > 0 && (
-      <ul class="card-tags">
-        {tags.map((tag) => <li>{tag}</li>)}
-      </ul>
+    {hero && (
+      <div class="card-hero">
+        <Image
+          src={hero}
+          alt={heroAlt || title}
+          widths={[400, 600, 800]}
+          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+          style={`view-transition-name: hero-${slug}`}
+        />
+      </div>
     )}
+    <div class="card-body">
+      <h3 class="card-title">{title}</h3>
+      <p class="card-description">{description}</p>
+      {tags.length > 0 && (
+        <ul class="card-tags">
+          {tags.map((tag) => <li>{tag}</li>)}
+        </ul>
+      )}
+    </div>
   </a>
 </article>
 
@@ -25,9 +42,10 @@ const { title, description, slug, tags = [] } = Astro.props;
   .project-card {
     border: 1px solid var(--color-border);
     border-radius: 0.5rem;
-    padding: var(--space-lg);
     background: var(--color-surface);
-    transition: box-shadow var(--transition-base), border-color var(--transition-base);
+    overflow: hidden;
+    transition: box-shadow var(--transition-base), border-color var(--transition-base), opacity var(--transition-base);
+    container-type: inline-size;
   }
 
   .project-card:hover {
@@ -38,6 +56,32 @@ const { title, description, slug, tags = [] } = Astro.props;
   a {
     color: inherit;
     text-decoration: none;
+    display: block;
+  }
+
+  .card-hero {
+    overflow: hidden;
+
+    & img {
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      object-fit: cover;
+      transition: transform var(--transition-slow);
+    }
+  }
+
+  .project-card:hover .card-hero img {
+    transform: scale(1.03);
+  }
+
+  @container (min-width: 28rem) {
+    .card-hero img {
+      aspect-ratio: 2 / 1;
+    }
+  }
+
+  .card-body {
+    padding: var(--space-lg);
   }
 
   .card-title {

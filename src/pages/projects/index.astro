@@ -3,9 +3,9 @@ import { getCollection } from "astro:content";
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import ProjectCard from "../../components/ProjectCard.astro";
 
-const allProjects = (await getCollection("projects")).sort(
-  (a, b) => b.data.date.getTime() - a.data.date.getTime(),
-);
+const allProjects = (await getCollection("projects"))
+  .filter((p) => p.data.layout !== "standalone")
+  .sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
 ---
 
 <BaseLayout title="Projects" description="All Cybernetic Studio projects">
@@ -17,6 +17,8 @@ const allProjects = (await getCollection("projects")).sort(
         description={project.data.description}
         slug={project.id}
         tags={project.data.tags}
+        hero={project.data.hero}
+        heroAlt={project.data.heroAlt}
       />
     ))}
   </div>
@@ -31,5 +33,24 @@ const allProjects = (await getCollection("projects")).sort(
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(20rem, 1fr));
     gap: var(--space-lg);
+
+    &:has(.project-card:hover) .project-card:not(:hover) {
+      opacity: 0.4;
+    }
+  }
+
+  @supports (animation-timeline: view()) {
+    .project-grid > :global(.project-card) {
+      animation: scroll-fade-in linear both;
+      animation-timeline: view();
+      animation-range: entry 0% entry 30%;
+    }
+
+    @keyframes scroll-fade-in {
+      from {
+        opacity: 0;
+        translate: 0 1rem;
+      }
+    }
   }
 </style>

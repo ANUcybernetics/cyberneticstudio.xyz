@@ -5,12 +5,15 @@ import ProjectCard from "../components/ProjectCard.astro";
 
 const allProjects = await getCollection("projects");
 const featured = allProjects
-  .filter((p) => p.data.featured)
+  .filter((p) => p.data.featured && p.data.layout !== "standalone")
   .sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
 ---
 
 <BaseLayout title="Home">
   <section class="hero">
+    <div class="hero-image">
+      <img src="/og-image.svg" alt="" width="1200" height="630" />
+    </div>
     <h1 class="glow-strong">Cybernetic Studio</h1>
     <p class="tagline">Creative technology projects and experiments</p>
   </section>
@@ -25,6 +28,8 @@ const featured = allProjects
             description={project.data.description}
             slug={project.id}
             tags={project.data.tags}
+            hero={project.data.hero}
+            heroAlt={project.data.heroAlt}
           />
         ))}
       </div>
@@ -36,6 +41,17 @@ const featured = allProjects
   .hero {
     text-align: center;
     padding: var(--space-2xl) 0;
+  }
+
+  .hero-image {
+    width: 100vw;
+    margin-left: calc(50% - 50vw);
+    margin-bottom: var(--space-xl);
+
+    & img {
+      width: 100%;
+      height: auto;
+    }
   }
 
   .tagline {
@@ -56,5 +72,24 @@ const featured = allProjects
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(20rem, 1fr));
     gap: var(--space-lg);
+
+    &:has(.project-card:hover) .project-card:not(:hover) {
+      opacity: 0.4;
+    }
+  }
+
+  @supports (animation-timeline: view()) {
+    .project-grid > :global(.project-card) {
+      animation: scroll-fade-in linear both;
+      animation-timeline: view();
+      animation-range: entry 0% entry 30%;
+    }
+
+    @keyframes scroll-fade-in {
+      from {
+        opacity: 0;
+        translate: 0 1rem;
+      }
+    }
   }
 </style>

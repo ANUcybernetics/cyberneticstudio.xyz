@@ -1,7 +1,7 @@
 @import "./fonts.css";
 
 :root {
-  --color-bg: #000;
+  --color-bg: #0d0d0d;
   --color-fg: #fff;
   --color-fg-muted: #999;
   --color-accent: #e6ff44;
@@ -26,6 +26,7 @@
 
   --transition-fast: 150ms ease;
   --transition-base: 300ms ease;
+  --transition-slow: 600ms ease;
 
   --glow-accent: 0 0 0.5rem rgba(230, 255, 68, 0.3),
     0 0 1.5rem rgba(230, 255, 68, 0.15), 0 0 3rem rgba(230, 255, 68, 0.05);

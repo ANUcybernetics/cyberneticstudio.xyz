@@ -1,0 +1,77 @@
+---
+import type { GetStaticPaths } from "astro";
+import { getCollection } from "astro:content";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import NewsCard from "../../components/NewsCard.astro";
+
+export const getStaticPaths = (async ({ paginate }) => {
+  const allNews = (await getCollection("news")).sort(
+    (a, b) => b.data.date.getTime() - a.data.date.getTime(),
+  );
+  return paginate(allNews, { pageSize: 12 });
+}) satisfies GetStaticPaths;
+
+const { page } = Astro.props;
+---
+
+<BaseLayout title="News" description="Latest news from Cybernetic Studio">
+  <h1 class="glow">News</h1>
+  <div class="news-grid">
+    {page.data.map((post) => (
+      <NewsCard
+        title={post.data.title}
+        description={post.data.description}
+        slug={post.id}
+        date={post.data.date}
+        tags={post.data.tags}
+      />
+    ))}
+  </div>
+
+  {(page.url.prev || page.url.next) && (
+    <nav class="pagination" aria-label="News pagination">
+      {page.url.prev ? (
+        <a href={page.url.prev} class="pagination-link">&larr; Newer</a>
+      ) : (
+        <span />
+      )}
+      <span class="pagination-info">Page {page.currentPage} of {page.lastPage}</span>
+      {page.url.next ? (
+        <a href={page.url.next} class="pagination-link">Older &rarr;</a>
+      ) : (
+        <span />
+      )}
+    </nav>
+  )}
+</BaseLayout>
+
+<style>
+  h1 {
+    margin-bottom: var(--space-xl);
+  }
+
+  .news-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(20rem, 1fr));
+    gap: var(--space-lg);
+  }
+
+  .pagination {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: var(--space-xl);
+    padding-top: var(--space-lg);
+    border-top: 1px solid var(--color-border);
+  }
+
+  .pagination-info {
+    color: var(--color-fg-muted);
+    font-size: 0.875rem;
+  }
+
+  .pagination-link {
+    color: var(--color-accent);
+    font-size: 0.9375rem;
+  }
+</style>

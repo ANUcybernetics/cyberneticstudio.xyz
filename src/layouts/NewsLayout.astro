@@ -1,5 +1,4 @@
 ---
-import { Image } from "astro:assets";
 import BaseLayout from "./BaseLayout.astro";
 
 interface Props {
@@ -7,12 +6,9 @@ interface Props {
   description: string;
   date: string;
   tags?: string[];
-  hero?: ImageMetadata;
-  heroAlt?: string;
-  slug?: string;
 }
 
-const { title, description, date, tags = [], hero, heroAlt, slug } = Astro.props;
+const { title, description, date, tags = [] } = Astro.props;
 const formattedDate = new Date(date).toLocaleDateString("en-AU", {
   year: "numeric",
   month: "long",
@@ -20,66 +16,43 @@ const formattedDate = new Date(date).toLocaleDateString("en-AU", {
 });
 ---
 
-<BaseLayout title={title} description={description} image={hero?.src}>
-  <article class="project">
-    {hero && (
-      <div class="project-hero">
-        <Image
-          src={hero}
-          alt={heroAlt || title}
-          widths={[800, 1200, 1600]}
-          sizes="100vw"
-          style={slug ? `view-transition-name: hero-${slug}` : undefined}
-        />
-      </div>
-    )}
-    <header class="project-header">
+<BaseLayout title={title} description={description}>
+  <article class="news-post">
+    <header class="news-header">
       <h1 class="glow-strong">{title}</h1>
-      <p class="project-meta">
+      <p class="news-meta">
         <time datetime={date}>{formattedDate}</time>
       </p>
       {tags.length > 0 && (
-        <ul class="project-tags">
+        <ul class="news-tags">
           {tags.map((tag) => <li>{tag}</li>)}
         </ul>
       )}
     </header>
-    <div class="project-content">
+    <div class="news-content">
       <slot />
     </div>
   </article>
 </BaseLayout>
 
 <style>
-  .project {
+  .news-post {
     max-width: var(--width-content);
     margin: 0 auto;
   }
 
-  .project-hero {
-    width: 100vw;
-    margin-left: calc(50% - 50vw);
-    margin-bottom: var(--space-xl);
-
-    & img {
-      width: 100%;
-      max-height: 60vh;
-      object-fit: cover;
-    }
-  }
-
-  .project-header {
+  .news-header {
     margin-bottom: var(--space-xl);
     padding-bottom: var(--space-lg);
     border-bottom: 1px solid var(--color-border);
   }
 
-  .project-meta {
+  .news-meta {
     color: var(--color-fg-muted);
     margin-top: var(--space-sm);
   }
 
-  .project-tags {
+  .news-tags {
     display: flex;
     gap: var(--space-sm);
     list-style: none;
@@ -87,7 +60,7 @@ const formattedDate = new Date(date).toLocaleDateString("en-AU", {
     flex-wrap: wrap;
   }
 
-  .project-tags li {
+  .news-tags li {
     font-size: 0.75rem;
     padding: var(--space-xs) var(--space-sm);
     border: 1px solid var(--color-border);
@@ -95,21 +68,16 @@ const formattedDate = new Date(date).toLocaleDateString("en-AU", {
     color: var(--color-fg-muted);
   }
 
-  .project-content {
+  .news-content {
     line-height: 1.8;
   }
 
-  .project-content :global(h2) {
+  .news-content :global(h2) {
     margin-top: var(--space-xl);
     margin-bottom: var(--space-md);
   }
 
-  .project-content :global(p) {
+  .news-content :global(p) {
     margin-bottom: var(--space-md);
-  }
-
-  .project-content :global(img) {
-    border-radius: 0.5rem;
-    margin: var(--space-lg) 0;
   }
 </style>

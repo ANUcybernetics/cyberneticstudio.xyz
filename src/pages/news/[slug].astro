@@ -1,0 +1,24 @@
+---
+import { getCollection, render } from "astro:content";
+import NewsLayout from "../../layouts/NewsLayout.astro";
+
+export async function getStaticPaths() {
+  const news = await getCollection("news");
+  return news.map((post) => ({
+    params: { slug: post.id },
+    props: { post },
+  }));
+}
+
+const { post } = Astro.props;
+const { Content } = await render(post);
+---
+
+<NewsLayout
+  title={post.data.title}
+  description={post.data.description}
+  date={post.data.date.toISOString()}
+  tags={post.data.tags}
+>
+  <Content />
+</NewsLayout>
