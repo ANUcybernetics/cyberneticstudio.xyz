@@ -1,8 +1,8 @@
 // @ts-check
 import { defineConfig } from "astro/config";
-import vue from "@astrojs/vue";
+import svelte from "@astrojs/svelte";
 
 export default defineConfig({
   site: "https://cyberneticstudio.xyz",
-  integrations: [vue()],
+  integrations: [svelte()],
 });

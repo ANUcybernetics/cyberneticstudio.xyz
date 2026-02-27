@@ -1,8 +1,8 @@
 ---
 import ExperimentLayout from "../../../layouts/ExperimentLayout.astro";
-import App from "../../../experiments/hello-world/App.vue";
+import App from "../../../experiments/hello-world/App.svelte";
 ---
 
-<ExperimentLayout title="Hello World" description="A minimal Vue SPA experiment">
-  <App client:only="vue" />
+<ExperimentLayout title="Hello World" description="A minimal Svelte SPA experiment">
+  <App client:only="svelte" />
 </ExperimentLayout>
