@@ -2,6 +2,7 @@
 import { getCollection } from "astro:content";
 import BaseLayout from "../layouts/BaseLayout.astro";
 import ProjectCard from "../components/ProjectCard.astro";
+import LissajousWave from "../components/LissajousWave.svelte";
 
 const allProjects = await getCollection("projects");
 const featured = allProjects
@@ -12,10 +13,9 @@ const featured = allProjects
 <BaseLayout title="Home">
   <section class="hero">
     <div class="hero-image">
-      <img src="/og-image.svg" alt="" width="1200" height="630" />
+      <LissajousWave client:only="svelte" />
+      <h1>Cybernetic Studio</h1>
     </div>
-    <h1 class="glow-strong">Cybernetic Studio</h1>
-    <p class="tagline">Creative technology projects and experiments</p>
   </section>
 
   {featured.length > 0 && (
@@ -40,24 +40,29 @@ const featured = allProjects
 <style>
   .hero {
     text-align: center;
-    padding: var(--space-2xl) 0;
+    padding: 0;
   }
 
   .hero-image {
+    position: relative;
+    display: grid;
+    place-items: center;
     width: 100vw;
     margin-left: calc(50% - 50vw);
     margin-bottom: var(--space-xl);
-
-    & img {
-      width: 100%;
-      height: auto;
-    }
+    height: clamp(200px, 30vw, 400px);
   }
 
-  .tagline {
-    color: var(--color-fg-muted);
-    font-size: 1.25rem;
-    margin-top: var(--space-md);
+  .hero-image :global(canvas) {
+    position: absolute;
+    inset: 0;
+  }
+
+  .hero-image h1 {
+    position: relative;
+    color: var(--color-fg);
+    -webkit-text-stroke: 2.5px var(--color-bg);
+    paint-order: stroke fill;
   }
 
   .featured {
