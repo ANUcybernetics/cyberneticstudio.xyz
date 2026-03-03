@@ -1,15 +1,19 @@
 ---
+import { Image } from "astro:assets";
 import BaseLayout from "../../layouts/BaseLayout.astro";
+import benSwiftPhoto from "../../assets/images/ben-swift.webp";
 ---
 
 <BaseLayout title="People" description="The people behind Cybernetic Studio">
   <h1 class="glow">People</h1>
   <div class="people-grid">
     <article class="person-card">
-      <img
-        src={`${import.meta.env.BASE_URL}/images/ben-swift.webp`}
+      <Image
+        src={benSwiftPhoto}
         alt="Line drawing portrait of Ben Swift"
         class="person-photo"
+        width={200}
+        height={200}
       />
       <div class="person-info">
         <h2>Ben Swift</h2>
