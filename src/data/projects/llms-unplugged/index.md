@@ -2,7 +2,6 @@
 title: "LLMs Unplugged"
 description: "Hands-on teaching resources for understanding how large language models work. No computers or coding required."
 date: 2025-06-01
-tags: ["education", "language-models", "unplugged", "teaching"]
 url: "https://llmsunplugged.org"
 hero: ./hero-index.avif
 heroAlt: "Stylised illustration of a hand writing on paper with dice, depicting the LLMs Unplugged activities"

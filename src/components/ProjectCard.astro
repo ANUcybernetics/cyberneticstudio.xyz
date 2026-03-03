@@ -5,12 +5,11 @@ interface Props {
   title: string;
   description: string;
   slug: string;
-  tags?: string[];
   hero?: ImageMetadata;
   heroAlt?: string;
 }
 
-const { title, description, slug, tags = [], hero, heroAlt } = Astro.props;
+const { title, description, slug, hero, heroAlt } = Astro.props;
 ---
 
 <article class="project-card">
@@ -29,11 +28,6 @@ const { title, description, slug, tags = [], hero, heroAlt } = Astro.props;
     <div class="card-body">
       <h3 class="card-title">{title}</h3>
       <p class="card-description">{description}</p>
-      {tags.length > 0 && (
-        <ul class="card-tags">
-          {tags.map((tag) => <li>{tag}</li>)}
-        </ul>
-      )}
     </div>
   </a>
 </article>
@@ -95,19 +89,4 @@ const { title, description, slug, tags = [], hero, heroAlt } = Astro.props;
     font-size: 0.9375rem;
   }
 
-  .card-tags {
-    display: flex;
-    gap: var(--space-sm);
-    list-style: none;
-    margin-top: var(--space-md);
-    flex-wrap: wrap;
-  }
-
-  .card-tags li {
-    font-size: 0.75rem;
-    padding: var(--space-xs) var(--space-sm);
-    border: 1px solid var(--color-border);
-    border-radius: 0.25rem;
-    color: var(--color-fg-muted);
-  }
 </style>

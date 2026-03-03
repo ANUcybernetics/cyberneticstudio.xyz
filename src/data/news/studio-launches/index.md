@@ -2,7 +2,6 @@
 title: "Cybernetic Studio launches"
 description: "Introducing the Cybernetic Studio portfolio --- a home for creative technology projects."
 date: 2025-01-20
-tags: ["announcement"]
 ---
 
 The Cybernetic Studio portfolio is live. This site collects creative technology projects spanning interactive web experiments, data visualisation, and computational art.

@@ -10,7 +10,6 @@ const projects = defineCollection({
       date: z.coerce.date(),
       hero: image().optional(),
       heroAlt: z.string().optional(),
-      tags: z.array(z.string()).default([]),
       url: z.string().url().optional(),
       featured: z.boolean().default(false),
       layout: z.enum(["standard", "standalone"]).default("standard"),
@@ -26,7 +25,6 @@ const news = defineCollection({
       date: z.coerce.date(),
       hero: image().optional(),
       heroAlt: z.string().optional(),
-      tags: z.array(z.string()).default([]),
     }),
 });
 

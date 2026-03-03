@@ -2,7 +2,6 @@
 title: "PANIC!"
 description: "An interactive installation exploring feedback loops of generative AI models hooked end-to-end."
 date: 2024-06-01
-tags: ["generative-ai", "installation", "cybernetics", "research"]
 url: "https://github.com/ANUcybernetics/panic-tda/"
 hero: ./2022-installation-view.avif
 heroAlt: "PANIC! installation view showing multiple screens displaying AI-generated image sequences"

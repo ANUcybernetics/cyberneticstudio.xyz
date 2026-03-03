@@ -5,10 +5,9 @@ interface Props {
   title: string;
   description: string;
   date: string;
-  tags?: string[];
 }
 
-const { title, description, date, tags = [] } = Astro.props;
+const { title, description, date } = Astro.props;
 const formattedDate = new Date(date).toLocaleDateString("en-AU", {
   year: "numeric",
   month: "long",
@@ -23,11 +22,6 @@ const formattedDate = new Date(date).toLocaleDateString("en-AU", {
       <p class="news-meta">
         <time datetime={date}>{formattedDate}</time>
       </p>
-      {tags.length > 0 && (
-        <ul class="news-tags">
-          {tags.map((tag) => <li>{tag}</li>)}
-        </ul>
-      )}
     </header>
     <div class="news-content">
       <slot />
@@ -50,22 +44,6 @@ const formattedDate = new Date(date).toLocaleDateString("en-AU", {
   .news-meta {
     color: var(--color-fg-muted);
     margin-top: var(--space-sm);
-  }
-
-  .news-tags {
-    display: flex;
-    gap: var(--space-sm);
-    list-style: none;
-    margin-top: var(--space-md);
-    flex-wrap: wrap;
-  }
-
-  .news-tags li {
-    font-size: 0.75rem;
-    padding: var(--space-xs) var(--space-sm);
-    border: 1px solid var(--color-border);
-    border-radius: 0.25rem;
-    color: var(--color-fg-muted);
   }
 
   .news-content {

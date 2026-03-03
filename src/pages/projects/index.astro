@@ -16,7 +16,6 @@ const allProjects = (await getCollection("projects"))
         title={project.data.title}
         description={project.data.description}
         slug={project.id}
-        tags={project.data.tags}
         hero={project.data.hero}
         heroAlt={project.data.heroAlt}
       />

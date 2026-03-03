@@ -2,7 +2,6 @@
 title: "Hello World"
 description: "A minimal interactive Svelte experiment demonstrating client-side rendering."
 date: 2025-01-10
-tags: ["svelte", "interactive"]
 featured: false
 layout: "standalone"
 ---

@@ -4,10 +4,9 @@ interface Props {
   description: string;
   slug: string;
   date: Date;
-  tags?: string[];
 }
 
-const { title, description, slug, date, tags = [] } = Astro.props;
+const { title, description, slug, date } = Astro.props;
 const formattedDate = date.toLocaleDateString("en-AU", {
   year: "numeric",
   month: "long",
@@ -20,11 +19,6 @@ const formattedDate = date.toLocaleDateString("en-AU", {
     <time datetime={date.toISOString()}>{formattedDate}</time>
     <h3 class="card-title">{title}</h3>
     <p class="card-description">{description}</p>
-    {tags.length > 0 && (
-      <ul class="card-tags">
-        {tags.map((tag) => <li>{tag}</li>)}
-      </ul>
-    )}
   </a>
 </article>
 
@@ -64,19 +58,4 @@ const formattedDate = date.toLocaleDateString("en-AU", {
     font-size: 0.9375rem;
   }
 
-  .card-tags {
-    display: flex;
-    gap: var(--space-sm);
-    list-style: none;
-    margin-top: var(--space-md);
-    flex-wrap: wrap;
-  }
-
-  .card-tags li {
-    font-size: 0.75rem;
-    padding: var(--space-xs) var(--space-sm);
-    border: 1px solid var(--color-border);
-    border-radius: 0.25rem;
-    color: var(--color-fg-muted);
-  }
 </style>

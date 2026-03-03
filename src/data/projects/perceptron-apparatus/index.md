@@ -4,7 +4,6 @@ description:
   "A physical computational device that makes neural network calculations
   tangible --- an abacus for deep learning."
 date: 2024-09-01
-tags: ["fabrication", "machine-learning", "education", "physical-computing"]
 hero: ./ben-with-apparatus.avif
 heroAlt: "Ben standing next to the Perceptron Apparatus"
 featured: true
