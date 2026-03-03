@@ -4,7 +4,8 @@ import svelte from "@astrojs/svelte";
 import remarkSmartypants from "remark-smartypants";
 
 export default defineConfig({
-  site: "https://cyberneticstudio.xyz",
+  site: "https://anucybernetics.github.io",
+  base: "/cyberneticstudio.xyz",
   integrations: [svelte()],
   markdown: {
     smartypants: false,
