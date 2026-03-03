@@ -35,6 +35,10 @@ const featured = allProjects
       </div>
     </section>
   )}
+
+  <section class="studio-image">
+    <img src="/images/studio-neon-sign.avif" alt="Cybernetic Studio neon sign" />
+  </section>
 </BaseLayout>
 
 <style>
@@ -95,6 +99,17 @@ const featured = allProjects
         opacity: 0;
         translate: 0 1rem;
       }
+    }
+  }
+
+  .studio-image {
+    margin-top: var(--space-xl);
+    width: 100vw;
+    margin-left: calc(50% - 50vw);
+
+    & img {
+      width: 100%;
+      display: block;
     }
   }
 </style>
