@@ -25,6 +25,7 @@
     "@types/node": "^25.3.0",
     "node-addon-api": "^8.5.0",
     "node-gyp": "^12.2.0",
+    "oxfmt": "^0.36.0",
     "oxlint": "^1.49.0",
     "typescript": "^5.9.3",
     "vitest": "^4.0.18"
