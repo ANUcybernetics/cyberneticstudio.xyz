@@ -264,13 +264,13 @@ body.reveal-viewport {
 }
 
 @media screen and (prefers-reduced-motion: no-preference) {
-  .logo-rule-top,
-  .logo-rule-bottom {
+  .present .logo-rule-top,
+  .present .logo-rule-bottom {
     transform: scaleY(0);
     animation: logo-rule-grow 1s cubic-bezier(0.22, 1, 0.36, 1) forwards;
   }
 
-  .logo-group {
+  .present .logo-group {
     opacity: 0;
     animation: logo-fade-in 2s ease 1s forwards;
   }
