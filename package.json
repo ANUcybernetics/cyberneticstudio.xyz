@@ -13,11 +13,18 @@
     "astro": "astro"
   },
   "dependencies": {
+    "@animotion/core": "^1.2.2",
     "@astrojs/svelte": "^7.2.5",
     "astro": "^5.17.1",
+    "rehype-stringify": "^10.0.1",
+    "remark-gfm": "^4.0.1",
+    "remark-parse": "^11.0.0",
+    "remark-rehype": "^11.1.2",
     "remark-smartypants": "^3.0.2",
     "sharp": "^0.34.5",
-    "svelte": "^5.53.5"
+    "svelte": "^5.53.5",
+    "unified": "^11.0.5",
+    "unist-util-visit": "^5.1.0"
   },
   "devDependencies": {
     "@astrojs/check": "^0.9.6",
