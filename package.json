@@ -10,6 +10,7 @@
     "fmt": "oxfmt --write src/",
     "test": "vitest run",
     "test:e2e": "playwright test",
+    "deck:pdf": "node scripts/deck-pdf.mjs",
     "astro": "astro"
   },
   "dependencies": {
@@ -32,6 +33,7 @@
     "@astrojs/check": "^0.9.6",
     "@playwright/test": "^1.58.2",
     "@types/node": "^25.3.0",
+    "decktape": "^3.15.0",
     "node-addon-api": "^8.5.0",
     "node-gyp": "^12.2.0",
     "oxfmt": "^0.36.0",

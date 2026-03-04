@@ -19,9 +19,11 @@ const QR_IMAGE_RE = /!\[qr\]\(([^)]+)\)/g;
 const LOGO_CLASS_RE = /^(anu-logo|socy-logo)$/;
 
 const AUTO_IMPORTS = [
-  'import { Presentation, Slide, Action, Code, Notes, Transition } from "@animotion/core";',
+  'import { Presentation, Slide, Action, Code, Notes, Transition, getPresentation } from "@animotion/core";',
   'import "@animotion/core/theme";',
 ];
+
+const REVEAL_BRIDGE = '  const __p = getPresentation(); $effect(() => { if (__p.slides) window.Reveal = __p.slides; });';
 
 interface BgImage {
   url: string;
@@ -247,6 +249,7 @@ export function deckPreprocessor(): PreprocessorGroup {
       let scriptBlock =
         scripts.length > 0 ? scripts.join("\n") : '<script lang="ts">\n</script>';
       scriptBlock = addAutoImports(scriptBlock);
+      scriptBlock = scriptBlock.replace(/<\/script>/i, `\n${REVEAL_BRIDGE}\n</script>`);
 
       const presentationContent = slideOutputs.join("\n\n");
       const styleBlock = styles.length > 0 ? "\n" + styles.join("\n") : "";
