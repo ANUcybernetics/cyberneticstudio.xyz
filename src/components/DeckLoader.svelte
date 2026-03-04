@@ -11,13 +11,10 @@
 
   let Deck: Component | undefined = $state();
 
-  const path = `/src/decks/${slug}/slides.deck.svelte`;
-  const loader = modules[path];
-  if (loader) {
-    loader().then((m) => {
-      Deck = m.default;
-    });
-  }
+  $effect(() => {
+    const loader = modules[`/src/decks/${slug}/slides.deck.svelte`];
+    loader?.().then((m) => { Deck = m.default; });
+  });
 </script>
 
 {#if Deck}
