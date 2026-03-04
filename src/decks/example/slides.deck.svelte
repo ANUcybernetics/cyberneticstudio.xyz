@@ -60,6 +60,24 @@ Content is vertically and horizontally centred.
 
 ---
 
+<!-- _class: anu-logo -->
+
+---
+
+<!-- _class: socy-logo -->
+
+---
+
+<!-- _class: socy-logo light -->
+
+---
+
+## Get the slides
+
+![qr](https://cyberneticstudio.xyz/decks/example/)
+
+---
+
 <script lang="ts">
   let count = $state(0);
 </script>

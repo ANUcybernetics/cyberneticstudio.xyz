@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { deckPreprocessor, extractBgImages } from "../../src/lib/deck-preprocessor";
+import { deckPreprocessor, extractBgImages, replaceQrImages } from "../../src/lib/deck-preprocessor";
 
 const preprocess = deckPreprocessor();
 
@@ -214,6 +214,103 @@ describe("deckPreprocessor", () => {
       const result = await process(content);
       expect(result).toContain("h1 { color: red; }");
     });
+  });
+});
+
+describe("logo slides", () => {
+  it("generates ANU logo SVG for anu-logo class", async () => {
+    const result = await process("<!-- _class: anu-logo -->");
+    expect(result).toContain('class="anu-logo"');
+    expect(result).toContain('viewBox="0 0 1280 720"');
+    expect(result).toContain('class="logo-svg"');
+    expect(result).toContain('class="logo-rule-top"');
+    expect(result).toContain('class="logo-rule-bottom"');
+    expect(result).toContain('class="logo-group"');
+    expect(result).toContain("translate(230, 287) scale(2)");
+  });
+
+  it("generates SoCy logo SVG for socy-logo class", async () => {
+    const result = await process("<!-- _class: socy-logo -->");
+    expect(result).toContain('class="socy-logo"');
+    expect(result).toContain('class="logo-svg"');
+    expect(result).toContain('class="logo-group"');
+    expect(result).toContain("scale(1.5)");
+  });
+
+  it("handles socy-logo light variant", async () => {
+    const result = await process("<!-- _class: socy-logo light -->");
+    expect(result).toContain('class="socy-logo light"');
+    expect(result).toContain('class="logo-svg"');
+  });
+
+  it("skips markdown processing for logo slides", async () => {
+    const result = await process("<!-- _class: anu-logo -->\n\nSome text");
+    expect(result).toContain('class="logo-svg"');
+    expect(result).not.toContain("<p>Some text</p>");
+  });
+
+  it("preserves notes on logo slides", async () => {
+    const result = await process("<!-- _class: anu-logo -->\n\n<!-- notes: Logo notes -->");
+    expect(result).toContain("<Notes>Logo notes</Notes>");
+    expect(result).toContain('class="logo-svg"');
+  });
+
+  it("prefixes ANU SVG classes to avoid collisions", async () => {
+    const result = await process("<!-- _class: anu-logo -->");
+    expect(result).toContain("anu-cls-");
+    expect(result).not.toMatch(/[^-]cls-1/);
+  });
+});
+
+describe("QR code generation", () => {
+  it("replaces ![qr](url) with QR SVG", async () => {
+    const result = await process("## Scan me\n\n![qr](https://example.com)");
+    expect(result).toContain('class="qr-code"');
+    expect(result).toContain('href="https://example.com"');
+    expect(result).toContain("<rect");
+    expect(result).toContain("example.com");
+  });
+
+  it("does not affect ![bg] images", async () => {
+    const result = await process("![bg](hero.jpg)\n\n# Title");
+    expect(result).toContain('class="slide-bg"');
+    expect(result).not.toContain('class="qr-code"');
+  });
+
+  it("strips protocol from display URL", async () => {
+    const result = await process("![qr](https://www.example.com/path)");
+    expect(result).toContain("<span>example.com/path</span>");
+  });
+
+  it("generates gold finder pattern rects", async () => {
+    const result = await process("![qr](https://example.com)");
+    expect(result).toContain('fill="#be830e"');
+    expect(result).toContain('fill="#ffffff"');
+  });
+
+  it("includes animation styles on rects", async () => {
+    const result = await process("![qr](https://example.com)");
+    expect(result).toContain("animation:");
+    expect(result).toContain("qr-pulse");
+  });
+});
+
+describe("replaceQrImages", () => {
+  it("replaces QR image syntax with SVG", () => {
+    const result = replaceQrImages("![qr](https://example.com)");
+    expect(result).toContain('class="qr-code"');
+    expect(result).toContain("<svg");
+  });
+
+  it("leaves non-QR images unchanged", () => {
+    const input = "![alt](photo.jpg)";
+    expect(replaceQrImages(input)).toBe(input);
+  });
+
+  it("replaces multiple QR images", () => {
+    const result = replaceQrImages("![qr](https://a.com)\n![qr](https://b.com)");
+    expect(result).toContain('href="https://a.com"');
+    expect(result).toContain('href="https://b.com"');
   });
 });
 

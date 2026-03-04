@@ -15,6 +15,7 @@
   "dependencies": {
     "@animotion/core": "^1.2.2",
     "@astrojs/svelte": "^7.2.5",
+    "@qrgrid/core": "^0.2.4",
     "astro": "^5.17.1",
     "rehype-stringify": "^10.0.1",
     "remark-gfm": "^4.0.1",

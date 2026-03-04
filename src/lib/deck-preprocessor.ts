@@ -4,6 +4,8 @@ import remarkParse from "remark-parse";
 import remarkGfm from "remark-gfm";
 import remarkRehype from "remark-rehype";
 import rehypeStringify from "rehype-stringify";
+import { generateLogoSlide } from "./deck-svg/logo-slide.js";
+import { generateQrCode } from "./deck-svg/qr-code.js";
 
 const DECK_FILE_PATTERN = /\.deck\.svelte$/;
 const SCRIPT_RE = /(<script[\s\S]*?<\/script>)/gi;
@@ -13,6 +15,8 @@ const NOTES_COMMENT_RE = /<!--\s*notes:\s*([\s\S]*?)\s*-->/;
 const ANIMOTION_COMPONENT_RE =
   /<(?:Action|Code|Transition|Embed|Recorder|Slides)\b/;
 const BG_IMAGE_RE = /!\[bg([^\]]*)\]\(([^)]+)\)/g;
+const QR_IMAGE_RE = /!\[qr\]\(([^)]+)\)/g;
+const LOGO_CLASS_RE = /^(anu-logo|socy-logo)(\s+light)?$/;
 
 const AUTO_IMPORTS = [
   'import { Presentation, Slide, Action, Code, Notes, Transition } from "@animotion/core";',
@@ -59,6 +63,10 @@ function parseBgModifiers(modifiers: string): Omit<BgImage, "url"> {
   if (filterParts.length > 0) result.filters = filterParts.join(" ");
 
   return result;
+}
+
+export function replaceQrImages(content: string): string {
+  return content.replace(QR_IMAGE_RE, (_, url) => generateQrCode(url));
 }
 
 export function extractBgImages(content: string): {
@@ -197,8 +205,25 @@ export function deckPreprocessor(): PreprocessorGroup {
           sectionContent = sectionContent.replace(NOTES_COMMENT_RE, "").trim();
         }
 
+        const logoMatch = slideClass?.match(LOGO_CLASS_RE);
+        if (logoMatch) {
+          const variant = logoMatch[1] === "anu-logo" ? "anu" as const : "socy" as const;
+          const light = !!logoMatch[2];
+          const logoSvg = generateLogoSlide({ variant, light });
+          const slideAttrs = buildSlideAttrs(slideClass);
+          const notesTag = notesContent
+            ? `\n    <Notes>${notesContent}</Notes>`
+            : "";
+          slideOutputs.push(
+            `  <Slide${slideAttrs}>\n    ${logoSvg}${notesTag}\n  </Slide>`,
+          );
+          continue;
+        }
+
         const { images, cleaned } = extractBgImages(sectionContent);
         sectionContent = cleaned.trim();
+
+        sectionContent = replaceQrImages(sectionContent);
 
         let innerHtml: string;
         if (hasAnimotionComponents(sectionContent)) {
