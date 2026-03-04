@@ -3,6 +3,7 @@ import { unified } from "unified";
 import remarkParse from "remark-parse";
 import remarkGfm from "remark-gfm";
 import remarkRehype from "remark-rehype";
+import rehypeShiki from "@shikijs/rehype";
 import rehypeStringify from "rehype-stringify";
 import { generateLogoSlide } from "./deck-svg/logo-slide.js";
 import { generateQrCode } from "./deck-svg/qr-code.js";
@@ -174,11 +175,18 @@ const markdownProcessor = unified()
   .use(remarkParse)
   .use(remarkGfm)
   .use(remarkRehype, { allowDangerousHtml: true })
+  .use(rehypeShiki, { theme: "poimandres" })
   .use(rehypeStringify, { allowDangerousHtml: true });
 
 async function markdownToHtml(md: string): Promise<string> {
   const result = await markdownProcessor.process(md);
-  return String(result);
+  return escapeSvelteInPre(String(result));
+}
+
+function escapeSvelteInPre(html: string): string {
+  return html.replace(/<pre[^>]*>[\s\S]*?<\/pre>/g, (block) =>
+    block.replace(/\{/g, "&#123;").replace(/\}/g, "&#125;"),
+  );
 }
 
 function hasAnimotionComponents(content: string): boolean {

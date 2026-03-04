@@ -28,6 +28,18 @@ Demonstrating animotion features
 
 ---
 
+## Code blocks
+
+```elixir
+defmodule Greeter do
+  def hello(name \\ "world") do
+    "Hello, #{name}!"
+  end
+end
+```
+
+---
+
 ![bg right:50%](/images/ben-swift.webp)
 
 ## Split layout
