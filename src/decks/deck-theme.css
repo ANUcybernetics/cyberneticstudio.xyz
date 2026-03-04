@@ -46,6 +46,10 @@ body.reveal-viewport {
   background-color: var(--r-background-color);
 }
 
+.reveal .progress span {
+  background-color: var(--anu-gold);
+}
+
 .reveal .slides section {
   font-family: var(--r-main-font);
   font-weight: 300;
