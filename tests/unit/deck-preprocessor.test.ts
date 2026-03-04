@@ -1,5 +1,14 @@
 import { describe, it, expect } from "vitest";
-import { deckPreprocessor, extractBgImages, replaceQrImages } from "../../src/lib/deck-preprocessor";
+import type { RootContent } from "mdast";
+import { unified } from "unified";
+import remarkParse from "remark-parse";
+import remarkGfm from "remark-gfm";
+import { deckPreprocessor, extractBgImagesFromAst, replaceQrImagesInAst } from "../../src/lib/deck-preprocessor";
+
+const parser = unified().use(remarkParse).use(remarkGfm);
+function parseNodes(md: string): RootContent[] {
+  return parser.parse(md).children;
+}
 
 const preprocess = deckPreprocessor();
 
@@ -322,65 +331,80 @@ describe("QR code generation", () => {
   });
 });
 
-describe("replaceQrImages", () => {
-  it("replaces QR image syntax with SVG", () => {
-    const result = replaceQrImages("![qr](https://example.com)");
-    expect(result).toContain('class="qr-code"');
-    expect(result).toContain("<svg");
+describe("replaceQrImagesInAst", () => {
+  it("replaces QR image syntax with SVG html node", () => {
+    const nodes = parseNodes("![qr](https://example.com)");
+    const result = replaceQrImagesInAst(nodes);
+    expect(result).toHaveLength(1);
+    expect(result[0].type).toBe("html");
+    expect((result[0] as { value: string }).value).toContain('class="qr-code"');
+    expect((result[0] as { value: string }).value).toContain("<svg");
   });
 
   it("leaves non-QR images unchanged", () => {
-    const input = "![alt](photo.jpg)";
-    expect(replaceQrImages(input)).toBe(input);
+    const nodes = parseNodes("![alt](photo.jpg)");
+    const result = replaceQrImagesInAst(nodes);
+    expect(result).toHaveLength(1);
+    expect(result[0].type).toBe("paragraph");
   });
 
   it("replaces multiple QR images", () => {
-    const result = replaceQrImages("![qr](https://a.com)\n![qr](https://b.com)");
-    expect(result).toContain('href="https://a.com"');
-    expect(result).toContain('href="https://b.com"');
+    const nodes = parseNodes("![qr](https://a.com)\n\n![qr](https://b.com)");
+    const result = replaceQrImagesInAst(nodes);
+    expect(result).toHaveLength(2);
+    expect((result[0] as { value: string }).value).toContain('href="https://a.com"');
+    expect((result[1] as { value: string }).value).toContain('href="https://b.com"');
   });
 });
 
-describe("extractBgImages", () => {
+describe("extractBgImagesFromAst", () => {
   it("extracts full-bleed bg image", () => {
-    const { images, cleaned } = extractBgImages("![bg](photo.jpg)\n\n# Title");
+    const nodes = parseNodes("![bg](photo.jpg)\n\n# Title");
+    const { images, remaining } = extractBgImagesFromAst(nodes);
     expect(images).toHaveLength(1);
     expect(images[0].url).toBe("photo.jpg");
     expect(images[0].position).toBeUndefined();
-    expect(cleaned).toContain("# Title");
-    expect(cleaned).not.toContain("![bg]");
+    expect(remaining).toHaveLength(1);
+    expect(remaining[0].type).toBe("heading");
   });
 
   it("extracts left split image", () => {
-    const { images } = extractBgImages("![bg left:40%](photo.jpg)");
+    const nodes = parseNodes("![bg left:40%](photo.jpg)");
+    const { images } = extractBgImagesFromAst(nodes);
     expect(images[0].position).toBe("left");
     expect(images[0].splitPercent).toBe("40%");
   });
 
   it("extracts right split image", () => {
-    const { images } = extractBgImages("![bg right](photo.jpg)");
+    const nodes = parseNodes("![bg right](photo.jpg)");
+    const { images } = extractBgImagesFromAst(nodes);
     expect(images[0].position).toBe("right");
     expect(images[0].splitPercent).toBe("50%");
   });
 
   it("extracts contain size", () => {
-    const { images } = extractBgImages("![bg contain](photo.jpg)");
+    const nodes = parseNodes("![bg contain](photo.jpg)");
+    const { images } = extractBgImagesFromAst(nodes);
     expect(images[0].size).toBe("contain");
   });
 
   it("extracts cover size", () => {
-    const { images } = extractBgImages("![bg cover](photo.jpg)");
+    const nodes = parseNodes("![bg cover](photo.jpg)");
+    const { images } = extractBgImagesFromAst(nodes);
     expect(images[0].size).toBe("cover");
   });
 
   it("extracts CSS filters", () => {
-    const { images } = extractBgImages("![bg blur:5px brightness:0.7](photo.jpg)");
+    const nodes = parseNodes("![bg blur:5px brightness:0.7](photo.jpg)");
+    const { images } = extractBgImagesFromAst(nodes);
     expect(images[0].filters).toBe("blur(5px) brightness(0.7)");
   });
 
   it("does not extract regular images", () => {
-    const { images, cleaned } = extractBgImages("![alt text](photo.jpg)");
+    const nodes = parseNodes("![alt text](photo.jpg)");
+    const { images, remaining } = extractBgImagesFromAst(nodes);
     expect(images).toHaveLength(0);
-    expect(cleaned).toContain("![alt text](photo.jpg)");
+    expect(remaining).toHaveLength(1);
+    expect(remaining[0].type).toBe("paragraph");
   });
 });

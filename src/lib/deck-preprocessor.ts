@@ -1,4 +1,5 @@
 import type { PreprocessorGroup } from "svelte/compiler";
+import type { Root, RootContent, Html } from "mdast";
 import { unified } from "unified";
 import remarkParse from "remark-parse";
 import remarkGfm from "remark-gfm";
@@ -9,56 +10,10 @@ import { generateLogoSlide } from "./deck-svg/logo-slide.js";
 import { generateQrCode } from "./deck-svg/qr-code.js";
 
 const DECK_FILE_PATTERN = /\.deck\.svelte$/;
-const SCRIPT_RE = /(<script[\s\S]*?<\/script>)/gi;
-const STYLE_RE = /(<style[\s\S]*?<\/style>)/gi;
-const CODE_BLOCK_SENTINEL = "\x00CB";
-
-function protectFencedCode(content: string): { text: string; blocks: string[] } {
-  const blocks: string[] = [];
-  const lines = content.split("\n");
-  const result: string[] = [];
-  let fenceLen = 0;
-  let blockLines: string[] = [];
-
-  for (const line of lines) {
-    if (fenceLen === 0) {
-      const match = line.match(/^(`{3,})/);
-      if (match) {
-        fenceLen = match[1].length;
-        blockLines = [line];
-      } else {
-        result.push(line);
-      }
-    } else {
-      blockLines.push(line);
-      const closeMatch = line.match(/^(`{3,})\s*$/);
-      if (closeMatch && closeMatch[1].length >= fenceLen) {
-        blocks.push(blockLines.join("\n"));
-        result.push(`${CODE_BLOCK_SENTINEL}${blocks.length - 1}${CODE_BLOCK_SENTINEL}`);
-        fenceLen = 0;
-        blockLines = [];
-      }
-    }
-  }
-
-  if (fenceLen > 0) {
-    result.push(...blockLines);
-  }
-
-  return { text: result.join("\n"), blocks };
-}
-
-function restoreFencedCode(content: string, blocks: string[]): string {
-  const re = new RegExp(`${CODE_BLOCK_SENTINEL}(\\d+)${CODE_BLOCK_SENTINEL}`, "g");
-  return content.replace(re, (_, i) => blocks[Number(i)]);
-}
-const CLASS_COMMENT_RE = /<!--\s*_class:\s*([\w\s-]+?)\s*-->/;
-const NOTES_COMMENT_RE = /<!--\s*notes:\s*([\s\S]*?)\s*-->/;
+const LOGO_CLASS_RE = /^(anu-logo|socy-logo)$/;
 const ANIMOTION_COMPONENT_RE =
   /<(?:Action|Code|Transition|Embed|Recorder|Slides)\b/;
-const BG_IMAGE_RE = /!\[bg([^\]]*)\]\(([^)]+)\)/g;
 const QR_IMAGE_RE = /!\[qr\]\(([^)]+)\)/g;
-const LOGO_CLASS_RE = /^(anu-logo|socy-logo)$/;
 
 const AUTO_IMPORTS = [
   'import { Presentation, Slide, Action, Code, Notes, Transition, getPresentation } from "@animotion/core";',
@@ -73,6 +28,39 @@ interface BgImage {
   size?: string;
   splitPercent?: string;
   filters?: string;
+}
+
+const parseProcessor = unified().use(remarkParse).use(remarkGfm);
+
+const htmlProcessor = unified()
+  .use(remarkRehype, { allowDangerousHtml: true })
+  .use(rehypeShiki, { theme: "poimandres" })
+  .use(rehypeStringify, { allowDangerousHtml: true });
+
+function fencedCodeRanges(text: string): [number, number][] {
+  const ranges: [number, number][] = [];
+  const lines = text.split("\n");
+  let offset = 0;
+  let fenceLen = 0;
+  let fenceStart = 0;
+
+  for (const line of lines) {
+    if (fenceLen === 0) {
+      const m = line.match(/^(`{3,})/);
+      if (m) {
+        fenceLen = m[1].length;
+        fenceStart = offset;
+      }
+    } else {
+      const m = line.match(/^(`{3,})\s*$/);
+      if (m && m[1].length >= fenceLen) {
+        ranges.push([fenceStart, offset + line.length]);
+        fenceLen = 0;
+      }
+    }
+    offset += line.length + 1;
+  }
+  return ranges;
 }
 
 function parseBgModifiers(modifiers: string): Omit<BgImage, "url"> {
@@ -109,25 +97,99 @@ function parseBgModifiers(modifiers: string): Omit<BgImage, "url"> {
   return result;
 }
 
-export function replaceQrImages(content: string): string {
-  return content.replace(QR_IMAGE_RE, (_, url) => generateQrCode(url));
+function splitAtThematicBreaks(root: Root): RootContent[][] {
+  const groups: RootContent[][] = [];
+  let current: RootContent[] = [];
+
+  for (const node of root.children) {
+    if (node.type === "thematicBreak") {
+      groups.push(current);
+      current = [];
+    } else {
+      current.push(node);
+    }
+  }
+  groups.push(current);
+
+  return groups;
 }
 
-export function extractBgImages(content: string): {
+function extractMetadataNodes(nodes: RootContent[]): {
+  slideClass: string | null;
+  notesContent: string | null;
+  remaining: RootContent[];
+} {
+  let slideClass: string | null = null;
+  let notesContent: string | null = null;
+  const remaining: RootContent[] = [];
+
+  for (const node of nodes) {
+    if (node.type === "html") {
+      const classMatch = (node as Html).value.match(/<!--\s*_class:\s*([\w\s-]+?)\s*-->/);
+      if (classMatch) {
+        slideClass = classMatch[1].trim();
+        continue;
+      }
+      const notesMatch = (node as Html).value.match(/<!--\s*notes:\s*([\s\S]*?)\s*-->/);
+      if (notesMatch) {
+        notesContent = notesMatch[1].trim();
+        continue;
+      }
+    }
+    remaining.push(node);
+  }
+
+  return { slideClass, notesContent, remaining };
+}
+
+export function extractBgImagesFromAst(nodes: RootContent[]): {
   images: BgImage[];
-  cleaned: string;
+  remaining: RootContent[];
 } {
   const images: BgImage[] = [];
-  const cleaned = content.replace(BG_IMAGE_RE, (_, modifiers, url) => {
-    images.push({ url, ...parseBgModifiers(modifiers) });
-    return "";
-  });
-  return { images, cleaned };
+  const remaining: RootContent[] = [];
+
+  for (const node of nodes) {
+    if (node.type === "paragraph" && node.children.length === 1) {
+      const child = node.children[0];
+      if (child.type === "image" && child.alt?.startsWith("bg")) {
+        const modifiers = child.alt!.slice(2);
+        images.push({ url: child.url, ...parseBgModifiers(modifiers) });
+        continue;
+      }
+    }
+    remaining.push(node);
+  }
+
+  return { images, remaining };
 }
 
-function buildSlideAttrs(
-  slideClass: string | null,
-): string {
+export function replaceQrImagesInAst(nodes: RootContent[]): RootContent[] {
+  return nodes.map((node) => {
+    if (node.type === "paragraph" && node.children.length === 1) {
+      const child = node.children[0];
+      if (child.type === "image" && child.alt === "qr") {
+        return { type: "html", value: generateQrCode(child.url) } as Html;
+      }
+    }
+    return node;
+  });
+}
+
+async function astToHtml(nodes: RootContent[]): Promise<string> {
+  const root: Root = { type: "root", children: nodes };
+  const hast = await htmlProcessor.run(root);
+  return htmlProcessor.stringify(hast) as string;
+}
+
+function sliceNodesText(nodes: RootContent[], text: string): string {
+  return nodes
+    .filter((n) => n.position)
+    .map((n) => text.slice(n.position!.start.offset, n.position!.end.offset))
+    .join("\n\n");
+}
+
+function buildSlideAttrs(slideClass: string | null): string {
   if (slideClass) {
     return ` class="${slideClass}"`;
   }
@@ -149,10 +211,7 @@ function buildBgDiv(images: BgImage[]): string {
   return `<div class="slide-bg" style="${styleParts.join("; ")}"></div>`;
 }
 
-function buildSplitWrapper(
-  images: BgImage[],
-  innerHtml: string,
-): string {
+function buildSplitWrapper(images: BgImage[], innerHtml: string): string {
   const splitImage = images.find((img) => img.position);
   if (!splitImage) return innerHtml;
 
@@ -171,26 +230,10 @@ function buildSplitWrapper(
   return `<div class="split-layout">${contentDiv}${imageDiv}</div>`;
 }
 
-const markdownProcessor = unified()
-  .use(remarkParse)
-  .use(remarkGfm)
-  .use(remarkRehype, { allowDangerousHtml: true })
-  .use(rehypeShiki, { theme: "poimandres" })
-  .use(rehypeStringify, { allowDangerousHtml: true });
-
-async function markdownToHtml(md: string): Promise<string> {
-  const result = await markdownProcessor.process(md);
-  return escapeSvelteInPre(String(result));
-}
-
 function escapeSvelteInPre(html: string): string {
   return html.replace(/<pre[^>]*>[\s\S]*?<\/pre>/g, (block) =>
     block.replace(/\{/g, "&#123;").replace(/\}/g, "&#125;"),
   );
-}
-
-function hasAnimotionComponents(content: string): boolean {
-  return ANIMOTION_COMPONENT_RE.test(content);
 }
 
 function addAutoImports(scriptContent: string): string {
@@ -218,18 +261,18 @@ export function deckPreprocessor(): PreprocessorGroup {
       const scripts: string[] = [];
       const styles: string[] = [];
 
-      const { text: withPlaceholders, blocks: codeBlocks } = protectFencedCode(content);
-      let template = withPlaceholders;
+      const fences = fencedCodeRanges(content);
+      const SCRIPT_OR_STYLE_RE = /<(script|style)[\s\S]*?<\/\1>/gi;
 
-      template = template.replace(SCRIPT_RE, (match) => {
-        scripts.push(match);
-        return "";
-      });
-
-      template = template.replace(STYLE_RE, (match) => {
-        styles.push(match);
-        return "";
-      });
+      let template = content.replace(
+        SCRIPT_OR_STYLE_RE,
+        (match, tag, offset) => {
+          if (fences.some(([s, e]) => offset >= s && offset <= e)) return match;
+          if (tag.toLowerCase() === "script") scripts.push(match);
+          else styles.push(match);
+          return "";
+        },
+      );
 
       template = template.trim();
       template = template.replace(/^---\n[\s\S]*?\n---\n/, "");
@@ -238,24 +281,14 @@ export function deckPreprocessor(): PreprocessorGroup {
         return undefined;
       }
 
-      const sections = template.split(/\n---\n/);
+      const root = parseProcessor.parse(template);
+      const groups = splitAtThematicBreaks(root);
       const slideOutputs: string[] = [];
 
-      for (const section of sections) {
-        let sectionContent = section.trim();
-        if (!sectionContent) continue;
+      for (const group of groups) {
+        if (group.length === 0) continue;
 
-        const classMatch = sectionContent.match(CLASS_COMMENT_RE);
-        const slideClass = classMatch ? classMatch[1].trim() : null;
-        if (classMatch) {
-          sectionContent = sectionContent.replace(CLASS_COMMENT_RE, "").trim();
-        }
-
-        const notesMatch = sectionContent.match(NOTES_COMMENT_RE);
-        const notesContent = notesMatch ? notesMatch[1].trim() : null;
-        if (notesMatch) {
-          sectionContent = sectionContent.replace(NOTES_COMMENT_RE, "").trim();
-        }
+        const { slideClass, notesContent, remaining: afterMeta } = extractMetadataNodes(group);
 
         const logoMatch = slideClass?.match(LOGO_CLASS_RE);
         if (logoMatch) {
@@ -271,17 +304,17 @@ export function deckPreprocessor(): PreprocessorGroup {
           continue;
         }
 
-        const { images, cleaned } = extractBgImages(sectionContent);
-        sectionContent = cleaned.trim();
-
-        sectionContent = replaceQrImages(sectionContent);
-        sectionContent = restoreFencedCode(sectionContent, codeBlocks);
+        const { images, remaining: afterBg } = extractBgImagesFromAst(afterMeta);
 
         let innerHtml: string;
-        if (hasAnimotionComponents(sectionContent)) {
-          innerHtml = sectionContent;
+        const groupText = sliceNodesText(afterBg, template);
+
+        if (ANIMOTION_COMPONENT_RE.test(groupText)) {
+          innerHtml = groupText.replace(QR_IMAGE_RE, (_, url) => generateQrCode(url));
         } else {
-          innerHtml = await markdownToHtml(sectionContent);
+          const afterQr = replaceQrImagesInAst(afterBg);
+          const html = await astToHtml(afterQr);
+          innerHtml = escapeSvelteInPre(html);
         }
 
         innerHtml = buildSplitWrapper(images, innerHtml);
