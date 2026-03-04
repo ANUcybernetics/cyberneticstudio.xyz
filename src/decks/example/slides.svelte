@@ -56,14 +56,6 @@ Image on the right, content on the left.
 
 ---
 
-<!-- _class: dark -->
-
-## Dark variant
-
-Content on a dark background with adapted colour scheme.
-
----
-
 <!-- _class: centered -->
 
 ## Centred slide

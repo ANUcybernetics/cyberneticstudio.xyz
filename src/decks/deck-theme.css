@@ -230,22 +230,6 @@ body.reveal-viewport {
   }
 }
 
-/* dark: dark background variant */
-.reveal .slides section.dark {
-  background: var(--anu-black);
-  color: var(--anu-white);
-
-  code {
-    background: var(--anu-dark-grey);
-    color: var(--anu-light-grey);
-    border-color: var(--anu-gold-4);
-  }
-
-  a {
-    color: var(--anu-gold-2);
-  }
-}
-
 /* quote: blockquote overlay on bg image */
 .reveal .slides section.quote {
   justify-content: center;

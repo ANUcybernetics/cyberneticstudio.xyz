@@ -33,7 +33,7 @@ Markdown-authored slide decks using animotion (Svelte + Reveal.js + Tailwind). F
 
 Slides are `.svelte` files in `src/decks/` that get preprocessed: markdown content is converted to HTML and wrapped in `<Presentation><Slide>` components. Separate slides with `\n---\n`.
 
-- `<!-- _class: title -->` --- set slide CSS class (available: `title`, `impact`, `divider`, `dark`, `quote`, `centered`)
+- `<!-- _class: title -->` --- set slide CSS class (available: `title`, `impact`, `divider`, `quote`, `centered`)
 - `<!-- notes: Speaker notes here -->` --- presenter notes
 - `![bg](url)` --- full-bleed background image (also `contain`, `cover`)
 - `![bg left:50%](url)` / `![bg right:40%](url)` --- split layout with image
