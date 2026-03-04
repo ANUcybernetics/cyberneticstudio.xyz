@@ -5,7 +5,7 @@ import remarkGfm from "remark-gfm";
 import remarkRehype from "remark-rehype";
 import rehypeStringify from "rehype-stringify";
 
-const DECK_PATH_PATTERN = /\/src\/decks\//;
+const DECK_FILE_PATTERN = /\.deck\.svelte$/;
 const SCRIPT_RE = /(<script[\s\S]*?<\/script>)/gi;
 const STYLE_RE = /(<style[\s\S]*?<\/style>)/gi;
 const CLASS_COMMENT_RE = /<!--\s*_class:\s*([\w\s-]+?)\s*-->/;
@@ -152,11 +152,7 @@ export function deckPreprocessor(): PreprocessorGroup {
   return {
     name: "deck-preprocessor",
     async markup({ content, filename }) {
-      if (!filename || !DECK_PATH_PATTERN.test(filename)) {
-        return undefined;
-      }
-
-      if (!filename.endsWith(".svelte")) {
+      if (!filename || !DECK_FILE_PATTERN.test(filename)) {
         return undefined;
       }
 

@@ -3,7 +3,7 @@ import { deckPreprocessor, extractBgImages } from "../../src/lib/deck-preprocess
 
 const preprocess = deckPreprocessor();
 
-async function process(content: string, filename = "/project/src/decks/test/slides.svelte") {
+async function process(content: string, filename = "/project/src/decks/test/slides.deck.svelte") {
   const result = await preprocess.markup!({ content, filename });
   return result?.code;
 }
@@ -15,12 +15,12 @@ describe("deckPreprocessor", () => {
       expect(result).toBeUndefined();
     });
 
-    it("returns undefined for non-svelte files in decks", async () => {
-      const result = await process("# Hello", "/project/src/decks/test/data.json");
+    it("returns undefined for non-deck svelte files in decks", async () => {
+      const result = await process("# Hello", "/project/src/decks/test/helper.svelte");
       expect(result).toBeUndefined();
     });
 
-    it("processes .svelte files in src/decks/", async () => {
+    it("processes .deck.svelte files", async () => {
       const result = await process("# Hello");
       expect(result).toBeDefined();
       expect(result).toContain("<Presentation");

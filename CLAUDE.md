@@ -23,7 +23,7 @@ Markdown-authored slide decks using animotion (Svelte + Reveal.js + Tailwind). F
 
 ### File structure
 
-- slides: `src/decks/<slug>/slides.svelte`
+- slides: `src/decks/<slug>/slides.deck.svelte`
 - Astro page: `src/pages/decks/<slug>/index.astro` (uses `DeckLayout` + `client:only="svelte"`)
 - theme: `src/decks/deck-theme.css` (ANU gold/copper palette, Public Sans via Google Fonts)
 - preprocessor: `src/lib/deck-preprocessor.ts` (registered in `astro.config.mjs`)
@@ -31,7 +31,7 @@ Markdown-authored slide decks using animotion (Svelte + Reveal.js + Tailwind). F
 
 ### Authoring
 
-Slides are `.svelte` files in `src/decks/` that get preprocessed: markdown content is converted to HTML and wrapped in `<Presentation><Slide>` components. Separate slides with `\n---\n`.
+Slides are `.deck.svelte` files in `src/decks/` that get preprocessed: markdown content is converted to HTML and wrapped in `<Presentation><Slide>` components. Separate slides with `\n---\n`.
 
 - `<!-- _class: title -->` --- set slide CSS class (available: `title`, `impact`, `divider`, `quote`, `centered`)
 - `<!-- notes: Speaker notes here -->` --- presenter notes

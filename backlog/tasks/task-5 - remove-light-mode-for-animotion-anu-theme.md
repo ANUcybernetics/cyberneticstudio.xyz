@@ -1,9 +1,10 @@
 ---
 id: TASK-5
 title: remove light mode for animotion anu theme
-status: To Do
+status: Done
 assignee: []
-created_date: "2026-03-04 06:05"
+created_date: '2026-03-04 06:05'
+updated_date: '2026-03-04 06:28'
 labels: []
 dependencies: []
 ---
