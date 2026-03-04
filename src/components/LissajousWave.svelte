@@ -1,7 +1,7 @@
 <script lang="ts">
   import { onMount } from "svelte";
 
-  let canvas: HTMLCanvasElement;
+  let canvas: HTMLCanvasElement = null!;
   let ctx: CanvasRenderingContext2D;
   let width = $state(0);
   let height = $state(0);
