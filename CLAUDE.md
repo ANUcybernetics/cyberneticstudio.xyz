@@ -42,6 +42,10 @@ Slides are `.deck.svelte` files in `src/decks/` that get preprocessed: markdown 
 - `<script>` and `<style>` blocks are preserved; auto-imports for animotion components are added if missing
 - `.columns` CSS class available for two-column grid layout within slide content
 
+### Animotion docs
+
+Upstream animotion documentation: https://animotion.pages.dev/llms.txt
+
 ### Layout notes
 
 - `DeckHead.astro` is identical to `BaseHead.astro` but without `<ClientRouter />` (would conflict with Reveal.js keyboard navigation)
