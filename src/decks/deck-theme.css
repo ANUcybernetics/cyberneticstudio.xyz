@@ -46,8 +46,8 @@ body.reveal-viewport {
   background-color: var(--r-background-color);
 }
 
-.reveal .progress span {
-  background-color: var(--anu-gold);
+.reveal .progress.progress {
+  color: var(--r-link-color);
 }
 
 .reveal .slides section {
