@@ -5,7 +5,7 @@ date: 2024-10-01
 url: "https://github.com/ANUcybernetics/llms-unplugged"
 hero: ./llm-library-collection.avif
 heroAlt: "The LLM Library collection --- hardbound volumes in green, purple, brown, and blue lined up on a shelf"
-featured: false
+order: 4
 ---
 
 The LLM Library is a collection of pre-trained language models in printed, hardbound book form. Each volume contains n-gram frequency tables typeset from classic works of literature --- the same statistical patterns that underpin modern LLMs, but at human scale. You can hold the entire model in your hands and use it to generate new text with pen, paper, and dice.

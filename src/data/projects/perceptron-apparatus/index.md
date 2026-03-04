@@ -6,7 +6,7 @@ description:
 date: 2024-09-01
 hero: ./ben-with-apparatus.avif
 heroAlt: "Ben standing next to the Perceptron Apparatus"
-featured: true
+order: 3
 ---
 
 ![Perceptron Apparatus schematic diagram](./apparatus.svg)

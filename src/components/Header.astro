@@ -6,7 +6,7 @@ const pathname = Astro.url.pathname;
   <nav>
     <a href="/" class="site-title glow-strong">Cybernetic Studio</a>
     <ul>
-      <li><a href="/projects/" aria-current={pathname.startsWith("/projects") ? "page" : undefined}>Projects</a></li>
+      <li><a href="/" aria-current={pathname === "/" ? "page" : undefined}>Projects</a></li>
       <li><a href="/news/" aria-current={pathname.startsWith("/news") ? "page" : undefined}>News</a></li>
       <li><a href="/people/" aria-current={pathname.startsWith("/people") ? "page" : undefined}>People</a></li>
     </ul>

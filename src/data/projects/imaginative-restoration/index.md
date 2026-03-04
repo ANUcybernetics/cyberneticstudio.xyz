@@ -5,7 +5,7 @@ date: 2024-07-01
 url: "https://github.com/ANUcybernetics/imaginative_restoration"
 hero: ./imgres-inside.avif
 heroAlt: "Inside the Imaginative Restoration installation --- a cave-like space with screens, a keyboard, and red spray-painted text on sandstone walls"
-featured: false
+order: 5
 ---
 
 Imaginative Restoration: Rewilding Division is an immersive installation created in collaboration with NIDA and the National Film and Sound Archive of Australia (NFSA). Participants hand-draw Australian flora and fauna --- a bilby here, a banksia there --- that are composited into damaged archival film footage in real time using generative AI.

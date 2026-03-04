@@ -6,10 +6,9 @@ import ProjectCard from "../components/ProjectCard.astro";
 import LissajousWave from "../components/LissajousWave.svelte";
 import studioNeonSign from "../assets/images/studio-neon-sign.avif";
 
-const allProjects = await getCollection("projects");
-const featured = allProjects
-  .filter((p) => p.data.featured && p.data.layout !== "standalone")
-  .sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
+const allProjects = (await getCollection("projects"))
+  .filter((p) => p.data.layout !== "standalone")
+  .sort((a, b) => a.data.order - b.data.order);
 ---
 
 <BaseLayout title="Home">
@@ -20,11 +19,11 @@ const featured = allProjects
     </div>
   </section>
 
-  {featured.length > 0 && (
+  {allProjects.length > 0 && (
     <section class="featured">
-      <h2>Featured projects</h2>
+      <h2>Projects</h2>
       <div class="project-grid">
-        {featured.map((project) => (
+        {allProjects.map((project) => (
           <ProjectCard
             title={project.data.title}
             description={project.data.description}

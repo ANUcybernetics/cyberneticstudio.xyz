@@ -5,7 +5,7 @@ date: 2024-06-01
 url: "https://github.com/ANUcybernetics/panic-tda/"
 hero: ./2022-installation-view.avif
 heroAlt: "PANIC! installation view showing multiple screens displaying AI-generated image sequences"
-featured: true
+order: 2
 ---
 
 PANIC! --- Playground AI Network for Interactive Creativity --- is what happens when you hook generative AI models together end-to-end and let them run. Take a text-to-image model, feed its output into an image-to-text model, and loop the result back around. Then stand back and watch.

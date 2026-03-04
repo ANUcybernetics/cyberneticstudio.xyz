@@ -5,7 +5,7 @@ date: 2025-06-01
 url: "https://llmsunplugged.org"
 hero: ./hero-index.avif
 heroAlt: "Stylised illustration of a hand writing on paper with dice, depicting the LLMs Unplugged activities"
-featured: true
+order: 1
 ---
 
 Most people's mental model of how ChatGPT works is basically "magic" --- and that's a problem if we want informed public discourse about AI. LLMs Unplugged is our attempt to fix that, one dice roll at a time.
