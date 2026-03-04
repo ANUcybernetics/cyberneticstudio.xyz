@@ -5,14 +5,14 @@ description: Demonstrating animotion slide deck features
 
 # Example Deck
 
-## Demonstrating animotion features
+Demonstrating animotion features
 
 ---
 
 ## Content slide
 
 - Markdown rendered to HTML
-- **Bold** and *italic* text
+- **Bold** and _italic_ text
 - [Links](https://cyberneticstudio.xyz) work naturally
 - Inline `code` with styling
 
@@ -20,11 +20,11 @@ description: Demonstrating animotion slide deck features
 
 ## GFM features
 
-| Feature | Status |
-| --- | --- |
-| Tables | Supported |
+| Feature           | Status    |
+| ----------------- | --------- |
+| Tables            | Supported |
 | ~~Strikethrough~~ | Supported |
-| Task lists | Supported |
+| Task lists        | Supported |
 
 ---
 
@@ -42,7 +42,7 @@ Image on the right, content on the left.
 
 <!-- _class: impact -->
 
-# Impact
+_here's_ the **thing**
 
 ---
 
