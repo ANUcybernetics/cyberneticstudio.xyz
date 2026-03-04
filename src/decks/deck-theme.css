@@ -154,31 +154,26 @@ body.reveal-viewport {
   }
 }
 
-/* title: centred, large h1 */
-.reveal .slides section.title {
+/* h1 slides: vertically centred by default */
+.reveal .slides section:has(h1) {
   place-content: center;
-
-  h1 {
-    font-size: 6rem;
-  }
-
-  h2 {
-    color: var(--anu-light-grey);
-    font-size: 3rem;
-    font-weight: normal;
-    text-transform: none;
-  }
 }
 
-/* impact: dark bg, massive gold text */
+.reveal .slides section h1 + h2 {
+  color: var(--anu-light-grey);
+  font-weight: normal;
+  text-transform: none;
+}
+
+/* impact: gold bg, white text */
 .reveal .slides section.impact {
-  background: var(--anu-black);
+  background: var(--anu-gold);
   color: var(--anu-white);
   place-content: center;
   text-align: center;
 
   :is(h1, h2, h3, h4, h5, h6) {
-    color: var(--anu-gold);
+    color: var(--anu-white);
   }
 
   h1 {
@@ -196,37 +191,17 @@ body.reveal-viewport {
 
   strong,
   em {
-    color: var(--anu-gold);
+    color: var(--anu-dark-grey);
   }
 
   code {
     background: var(--anu-dark-grey);
-    color: var(--anu-light-grey);
-    border-color: var(--anu-gold-4);
-  }
-}
-
-/* divider: dark bg, section break */
-.reveal .slides section.divider {
-  justify-content: center;
-  background: var(--anu-black);
-  color: var(--anu-white);
-
-  h1 {
-    font-size: 7.5rem;
     color: var(--anu-white);
-  }
-
-  :is(h2, h3, h4, h5, h6) {
-    color: var(--anu-white);
-  }
-
-  :is(p, li) {
-    color: var(--anu-white);
+    border-color: var(--anu-dark-grey);
   }
 
   a {
-    color: var(--anu-gold-2);
+    color: var(--anu-white);
   }
 }
 

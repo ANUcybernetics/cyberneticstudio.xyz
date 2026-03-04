@@ -3,8 +3,6 @@ title: Example Deck
 description: Demonstrating animotion slide deck features
 ---
 
-<!-- _class: title -->
-
 # Example Deck
 
 ## Demonstrating animotion features
@@ -47,8 +45,6 @@ Image on the right, content on the left.
 # Impact
 
 ---
-
-<!-- _class: divider -->
 
 ![bg brightness:0.5](/images/bg-div-mechanic.avif)
 
