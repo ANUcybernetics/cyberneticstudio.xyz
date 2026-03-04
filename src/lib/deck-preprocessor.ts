@@ -10,6 +10,47 @@ import { generateQrCode } from "./deck-svg/qr-code.js";
 const DECK_FILE_PATTERN = /\.deck\.svelte$/;
 const SCRIPT_RE = /(<script[\s\S]*?<\/script>)/gi;
 const STYLE_RE = /(<style[\s\S]*?<\/style>)/gi;
+const CODE_BLOCK_SENTINEL = "\x00CB";
+
+function protectFencedCode(content: string): { text: string; blocks: string[] } {
+  const blocks: string[] = [];
+  const lines = content.split("\n");
+  const result: string[] = [];
+  let fenceLen = 0;
+  let blockLines: string[] = [];
+
+  for (const line of lines) {
+    if (fenceLen === 0) {
+      const match = line.match(/^(`{3,})/);
+      if (match) {
+        fenceLen = match[1].length;
+        blockLines = [line];
+      } else {
+        result.push(line);
+      }
+    } else {
+      blockLines.push(line);
+      const closeMatch = line.match(/^(`{3,})\s*$/);
+      if (closeMatch && closeMatch[1].length >= fenceLen) {
+        blocks.push(blockLines.join("\n"));
+        result.push(`${CODE_BLOCK_SENTINEL}${blocks.length - 1}${CODE_BLOCK_SENTINEL}`);
+        fenceLen = 0;
+        blockLines = [];
+      }
+    }
+  }
+
+  if (fenceLen > 0) {
+    result.push(...blockLines);
+  }
+
+  return { text: result.join("\n"), blocks };
+}
+
+function restoreFencedCode(content: string, blocks: string[]): string {
+  const re = new RegExp(`${CODE_BLOCK_SENTINEL}(\\d+)${CODE_BLOCK_SENTINEL}`, "g");
+  return content.replace(re, (_, i) => blocks[Number(i)]);
+}
 const CLASS_COMMENT_RE = /<!--\s*_class:\s*([\w\s-]+?)\s*-->/;
 const NOTES_COMMENT_RE = /<!--\s*notes:\s*([\s\S]*?)\s*-->/;
 const ANIMOTION_COMPONENT_RE =
@@ -169,7 +210,8 @@ export function deckPreprocessor(): PreprocessorGroup {
       const scripts: string[] = [];
       const styles: string[] = [];
 
-      let template = content;
+      const { text: withPlaceholders, blocks: codeBlocks } = protectFencedCode(content);
+      let template = withPlaceholders;
 
       template = template.replace(SCRIPT_RE, (match) => {
         scripts.push(match);
@@ -225,6 +267,7 @@ export function deckPreprocessor(): PreprocessorGroup {
         sectionContent = cleaned.trim();
 
         sectionContent = replaceQrImages(sectionContent);
+        sectionContent = restoreFencedCode(sectionContent, codeBlocks);
 
         let innerHtml: string;
         if (hasAnimotionComponents(sectionContent)) {

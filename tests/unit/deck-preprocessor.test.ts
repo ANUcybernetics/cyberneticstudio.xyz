@@ -107,6 +107,39 @@ describe("deckPreprocessor", () => {
       const result = await process('<div class="custom">content</div>');
       expect(result).toContain('<div class="custom">content</div>');
     });
+
+    it("handles fenced code blocks", async () => {
+      const md = '## Example\n\n```python\ndef hello():\n    print("hello")\n```';
+      const result = await process(md);
+      expect(result).toContain("<pre>");
+      expect(result).toContain("<code");
+      expect(result).toContain("def hello():");
+    });
+
+    it("handles fenced code blocks with no language", async () => {
+      const md = "```\nconst x = 1;\n```";
+      const result = await process(md);
+      expect(result).toContain("<pre>");
+      expect(result).toContain("<code");
+      expect(result).toContain("const x = 1;");
+    });
+
+    it("does not extract script tags inside fenced code blocks", async () => {
+      const md = '## Example\n\n```html\n<script>\n  console.log("hi");\n</script>\n```';
+      const result = await process(md);
+      expect(result).toContain("<pre>");
+      expect(result).toContain("<code");
+      expect(result).toContain("console.log");
+      const slideContent = result!.split("<Slide>")[1]?.split("</Slide>")[0] || "";
+      expect(slideContent).toContain("console.log");
+    });
+
+    it("does not split slides on --- inside fenced code blocks", async () => {
+      const md = '# Slide\n\n```yaml\nkey: value\n---\nother: stuff\n```';
+      const result = await process(md);
+      const slideCount = (result!.match(/<Slide/g) || []).length;
+      expect(slideCount).toBe(1);
+    });
   });
 
   describe("animotion component passthrough", () => {
@@ -134,7 +167,7 @@ describe("deckPreprocessor", () => {
   describe("auto-imports", () => {
     it("adds imports when no script block exists", async () => {
       const result = await process("# Hello");
-      expect(result).toContain('import { Presentation, Slide, Action, Code, Notes, Transition } from "@animotion/core"');
+      expect(result).toContain('import { Presentation, Slide, Action, Code, Notes, Transition, getPresentation } from "@animotion/core"');
       expect(result).toContain('import "@animotion/core/theme"');
     });
 
