@@ -1,3 +1,8 @@
+---
+title: Example Deck
+description: Demonstrating animotion slide deck features
+---
+
 <!-- _class: title -->
 
 # Example Deck

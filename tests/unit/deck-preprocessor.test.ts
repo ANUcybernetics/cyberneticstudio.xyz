@@ -192,6 +192,16 @@ describe("deckPreprocessor", () => {
     });
   });
 
+  describe("frontmatter stripping", () => {
+    it("strips frontmatter without producing an extra slide", async () => {
+      const content = "---\ntitle: Test\ndescription: A test\n---\n\n# First slide\n\n---\n\n# Second slide";
+      const result = await process(content);
+      const slideCount = (result!.match(/<Slide/g) || []).length;
+      expect(slideCount).toBe(2);
+      expect(result).not.toContain("title: Test");
+    });
+  });
+
   describe("script and style preservation", () => {
     it("preserves script blocks", async () => {
       const content = '<script lang="ts">\n  let count = 0;\n</script>\n\n# Hello';

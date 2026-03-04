@@ -176,6 +176,7 @@ export function deckPreprocessor(): PreprocessorGroup {
       });
 
       template = template.trim();
+      template = template.replace(/^---\n[\s\S]*?\n---\n/, "");
 
       if (!template) {
         return undefined;
