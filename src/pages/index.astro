@@ -8,7 +8,7 @@ import studioNeonSign from "../assets/images/studio-neon-sign.avif";
 
 const allProjects = (await getCollection("projects"))
   .filter((p) => p.data.layout !== "standalone")
-  .sort((a, b) => a.data.order - b.data.order);
+  .toSorted((a, b) => a.data.order - b.data.order);
 ---
 
 <BaseLayout title="Home">

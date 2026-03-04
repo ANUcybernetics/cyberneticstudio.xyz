@@ -1,4 +1,10 @@
 {
-  "rules": {},
+  "categories": {
+    "suspicious": "warn",
+    "perf": "warn"
+  },
+  "rules": {
+    "no-await-in-loop": "off"
+  },
   "ignorePatterns": ["dist", ".astro", "node_modules"]
 }

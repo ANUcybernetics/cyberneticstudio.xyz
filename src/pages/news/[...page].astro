@@ -5,7 +5,7 @@ import BaseLayout from "../../layouts/BaseLayout.astro";
 import NewsCard from "../../components/NewsCard.astro";
 
 export const getStaticPaths = (async ({ paginate }) => {
-  const allNews = (await getCollection("news")).sort(
+  const allNews = (await getCollection("news")).toSorted(
     (a, b) => b.data.date.getTime() - a.data.date.getTime(),
   );
   return paginate(allNews, { pageSize: 12 });
