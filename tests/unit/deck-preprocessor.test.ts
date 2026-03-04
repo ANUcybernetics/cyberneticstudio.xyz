@@ -154,14 +154,16 @@ describe("deckPreprocessor", () => {
   });
 
   describe("bg image integration", () => {
-    it("maps full-bleed bg to Slide image prop", async () => {
+    it("maps full-bleed bg to slide-bg div", async () => {
       const result = await process("![bg](hero.jpg)\n\n# Title");
-      expect(result).toContain('image="hero.jpg"');
+      expect(result).toContain('class="slide-bg"');
+      expect(result).toContain("background-image: url('hero.jpg')");
+      expect(result).toContain("background-size: cover");
     });
 
-    it("maps bg contain to data-background-size", async () => {
+    it("maps bg contain to background-size on slide-bg div", async () => {
       const result = await process("![bg contain](logo.png)\n\n# Title");
-      expect(result).toContain('data-background-size="contain"');
+      expect(result).toContain("background-size: contain");
     });
 
     it("creates split layout wrapper for left split", async () => {
@@ -174,6 +176,13 @@ describe("deckPreprocessor", () => {
     it("creates split layout wrapper for right split", async () => {
       const result = await process("![bg right:60%](photo.jpg)\n\n# Content");
       expect(result).toContain('class="split-layout"');
+    });
+
+    it("maps brightness filter to inline style", async () => {
+      const result = await process("![bg brightness:0.5](hero.jpg)\n\n# Title");
+      expect(result).toContain("background-image: url('hero.jpg')");
+      expect(result).toContain("filter: brightness(0.5)");
+      expect(result).not.toContain("split-layout");
     });
 
     it("does not affect regular images", async () => {

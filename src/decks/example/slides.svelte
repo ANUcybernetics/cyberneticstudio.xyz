@@ -45,6 +45,8 @@ Image on the right, content on the left.
 
 <!-- _class: divider -->
 
+![bg brightness:0.5](/images/bg-div-mechanic.avif)
+
 # Section break
 
 ---

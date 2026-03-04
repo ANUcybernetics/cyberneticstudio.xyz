@@ -31,13 +31,13 @@ function parseBgModifiers(modifiers: string): Omit<BgImage, "url"> {
   const trimmed = modifiers.trim();
   const result: Omit<BgImage, "url"> = {};
 
-  const leftMatch = trimmed.match(/left(?::(\d+%))?/);
+  const leftMatch = trimmed.match(/\bleft(?::(\d+%))?/);
   if (leftMatch) {
     result.position = "left";
     result.splitPercent = leftMatch[1] || "50%";
   }
 
-  const rightMatch = trimmed.match(/right(?::(\d+%))?/);
+  const rightMatch = trimmed.match(/\bright(?::(\d+%))?/);
   if (rightMatch) {
     result.position = "right";
     result.splitPercent = rightMatch[1] || "50%";
@@ -75,23 +75,26 @@ export function extractBgImages(content: string): {
 
 function buildSlideAttrs(
   slideClass: string | null,
-  images: BgImage[],
 ): string {
-  const attrs: string[] = [];
-
   if (slideClass) {
-    attrs.push(`class="${slideClass}"`);
+    return ` class="${slideClass}"`;
   }
+  return "";
+}
 
+function buildBgDiv(images: BgImage[]): string {
   const fullBleed = images.find((img) => !img.position);
-  if (fullBleed) {
-    attrs.push(`image="${fullBleed.url}"`);
-    if (fullBleed.size) {
-      attrs.push(`data-background-size="${fullBleed.size}"`);
-    }
-  }
+  if (!fullBleed) return "";
 
-  return attrs.length > 0 ? ` ${attrs.join(" ")}` : "";
+  const styleParts = [
+    `background-image: url('${fullBleed.url}')`,
+    `background-size: ${fullBleed.size || "cover"}`,
+    "background-position: center",
+  ];
+  if (fullBleed.filters) {
+    styleParts.push(`filter: ${fullBleed.filters}`);
+  }
+  return `<div class="slide-bg" style="${styleParts.join("; ")}"></div>`;
 }
 
 function buildSplitWrapper(
@@ -103,11 +106,11 @@ function buildSplitWrapper(
 
   const imagePercent = splitImage.splitPercent || "50%";
   const contentPercent = `calc(100% - ${imagePercent})`;
-  const filterStyle = splitImage.filters
-    ? ` style="filter: ${splitImage.filters}"`
+  const filterPart = splitImage.filters
+    ? `; filter: ${splitImage.filters}`
     : "";
 
-  const imageDiv = `<div class="split-image" style="background-image: url('${splitImage.url}'); width: ${imagePercent}"${filterStyle}></div>`;
+  const imageDiv = `<div class="split-image" style="background-image: url('${splitImage.url}'); width: ${imagePercent}${filterPart}"></div>`;
   const contentDiv = `<div class="split-content" style="width: ${contentPercent}">${innerHtml}</div>`;
 
   if (splitImage.position === "left") {
@@ -209,13 +212,14 @@ export function deckPreprocessor(): PreprocessorGroup {
 
         innerHtml = buildSplitWrapper(images, innerHtml);
 
-        const slideAttrs = buildSlideAttrs(slideClass, images);
+        const slideAttrs = buildSlideAttrs(slideClass);
+        const bgDiv = buildBgDiv(images);
         const notesTag = notesContent
           ? `\n    <Notes>${notesContent}</Notes>`
           : "";
 
         slideOutputs.push(
-          `  <Slide${slideAttrs}>\n    ${innerHtml}${notesTag}\n  </Slide>`,
+          `  <Slide${slideAttrs}>\n    ${bgDiv}${innerHtml}${notesTag}\n  </Slide>`,
         );
       }
 
@@ -226,7 +230,7 @@ export function deckPreprocessor(): PreprocessorGroup {
       const presentationContent = slideOutputs.join("\n\n");
       const styleBlock = styles.length > 0 ? "\n" + styles.join("\n") : "";
 
-      const code = `${scriptBlock}\n\n<Presentation options={{ width: 1280, height: 720 }}>\n${presentationContent}\n</Presentation>${styleBlock}\n`;
+      const code = `${scriptBlock}\n\n<Presentation options={{ width: 1280, height: 720, transition: "none" }}>\n${presentationContent}\n</Presentation>${styleBlock}\n`;
 
       return { code };
     },
