@@ -237,12 +237,6 @@ describe("logo slides", () => {
     expect(result).toContain("scale(1.5)");
   });
 
-  it("handles socy-logo light variant", async () => {
-    const result = await process("<!-- _class: socy-logo light -->");
-    expect(result).toContain('class="socy-logo light"');
-    expect(result).toContain('class="logo-svg"');
-  });
-
   it("skips markdown processing for logo slides", async () => {
     const result = await process("<!-- _class: anu-logo -->\n\nSome text");
     expect(result).toContain('class="logo-svg"');
@@ -291,7 +285,7 @@ describe("QR code generation", () => {
   it("includes animation styles on rects", async () => {
     const result = await process("![qr](https://example.com)");
     expect(result).toContain("animation:");
-    expect(result).toContain("qr-pulse");
+    expect(result).toContain("qr-morph");
   });
 });
 

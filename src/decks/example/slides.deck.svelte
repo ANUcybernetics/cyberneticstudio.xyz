@@ -68,10 +68,6 @@ Content is vertically and horizontally centred.
 
 ---
 
-<!-- _class: socy-logo light -->
-
----
-
 <!-- _class: centered -->
 
 ![qr](https://cyberneticstudio.xyz/decks/example/)

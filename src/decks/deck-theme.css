@@ -280,10 +280,6 @@ body.reveal-viewport {
   padding: 0;
 }
 
-.reveal .slides section.socy-logo.light {
-  background: var(--anu-white);
-}
-
 .logo-svg {
   position: absolute;
   inset: 0;

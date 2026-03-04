@@ -16,7 +16,7 @@ const ANIMOTION_COMPONENT_RE =
   /<(?:Action|Code|Transition|Embed|Recorder|Slides)\b/;
 const BG_IMAGE_RE = /!\[bg([^\]]*)\]\(([^)]+)\)/g;
 const QR_IMAGE_RE = /!\[qr\]\(([^)]+)\)/g;
-const LOGO_CLASS_RE = /^(anu-logo|socy-logo)(\s+light)?$/;
+const LOGO_CLASS_RE = /^(anu-logo|socy-logo)$/;
 
 const AUTO_IMPORTS = [
   'import { Presentation, Slide, Action, Code, Notes, Transition } from "@animotion/core";',
@@ -208,8 +208,7 @@ export function deckPreprocessor(): PreprocessorGroup {
         const logoMatch = slideClass?.match(LOGO_CLASS_RE);
         if (logoMatch) {
           const variant = logoMatch[1] === "anu-logo" ? "anu" as const : "socy" as const;
-          const light = !!logoMatch[2];
-          const logoSvg = generateLogoSlide({ variant, light });
+          const logoSvg = generateLogoSlide(variant);
           const slideAttrs = buildSlideAttrs(slideClass);
           const notesTag = notesContent
             ? `\n    <Notes>${notesContent}</Notes>`

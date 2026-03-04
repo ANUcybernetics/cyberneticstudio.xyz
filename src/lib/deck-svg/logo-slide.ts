@@ -24,21 +24,13 @@ function prefixClasses(content: string, prefix: string): string {
 }
 
 function vruleRects(x: number, gapTop = 250, gapBottom = 470): string {
-  const topH = gapTop;
-  const bottomY = gapBottom;
-  const bottomH = 720 - gapBottom;
   return [
-    `<rect class="logo-rule-top" x="${x}" y="0" width="1" height="${topH}" fill="#be830e" style="transform-origin: ${x}px 0px"/>`,
-    `<rect class="logo-rule-bottom" x="${x}" y="${bottomY}" width="1" height="${bottomH}" fill="#be830e" style="transform-origin: ${x}px 720px"/>`,
+    `<rect class="logo-rule-top" x="${x}" y="0" width="1" height="${gapTop}" fill="#be830e" style="transform-origin: ${x}px 0px"/>`,
+    `<rect class="logo-rule-bottom" x="${x}" y="${gapBottom}" width="1" height="${720 - gapBottom}" fill="#be830e" style="transform-origin: ${x}px 720px"/>`,
   ].join("\n    ");
 }
 
-interface LogoSlideOptions {
-  variant: "anu" | "socy";
-  light?: boolean;
-}
-
-export function generateLogoSlide({ variant, light }: LogoSlideOptions): string {
+export function generateLogoSlide(variant: "anu" | "socy"): string {
   let inner: string;
   let vrules: string;
   let logoTransform: string;
@@ -49,18 +41,14 @@ export function generateLogoSlide({ variant, light }: LogoSlideOptions): string 
     vrules = vruleRects(320);
     logoTransform = "translate(230, 287) scale(2)";
   } else {
-    const file = light
-      ? "SCyb_Horizontal_GoldBlack.svg"
-      : "SCyb_Horizontal_GoldWhite.svg";
-    const raw = readSvg(file);
+    const raw = readSvg("SCyb_Horizontal_GoldWhite.svg");
     inner = prefixClasses(extractSvgInner(raw), "socy");
     const logoScale = 1.5;
     const logoWidth = 425.28 * logoScale;
     const logoHeight = 110.16 * logoScale;
     const logoX = (1280 - logoWidth) / 2;
     const logoY = (720 - logoHeight) / 2;
-    const crestCenterX = logoX + 53 * logoScale - 8;
-    vrules = vruleRects(crestCenterX);
+    vrules = vruleRects(logoX + 53 * logoScale - 8);
     logoTransform = `translate(${logoX}, ${logoY}) scale(${logoScale})`;
   }
 
