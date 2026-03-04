@@ -4,10 +4,13 @@ const PRIMES = [11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 59, 61, 67, 71];
 const MODULE_SIZE = 10;
 const MARGIN = 40;
 
+function stagger(i: number, range: number): number {
+  return ((i * PRIMES[i % PRIMES.length]) % (range * 1000)) / 1000;
+}
+
 export function generateQrCode(url: string): string {
   const qr = new QR(url, { errorCorrection: "H" });
   const totalSize = qr.gridSize * MODULE_SIZE + MARGIN * 2;
-
   const rects: string[] = [];
 
   qr.data.forEach((bit: number, i: number) => {
@@ -18,23 +21,18 @@ export function generateQrCode(url: string): string {
     const x = col * MODULE_SIZE + MARGIN;
     const y = row * MODULE_SIZE + MARGIN;
 
-    const isFinderPattern =
+    const isFinder =
       (row < 7 && col < 7) ||
       (row < 7 && col >= qr.gridSize - 7) ||
       (row >= qr.gridSize - 7 && col < 7);
 
-    const fill = isFinderPattern ? "#be830e" : "#ffffff";
-
-    const baseDelay = ((i * PRIMES[i % PRIMES.length]) % 5000) / 1000;
-    const interval = 8 + ((i * PRIMES[(i + 7) % PRIMES.length]) % 4000) / 1000;
-
-    const colorName = isFinderPattern ? "qr-color-gold" : "qr-color-light";
-    const colorDuration = isFinderPattern ? 8 : 10;
-    const colorDelay = baseDelay + 1;
+    const fill = isFinder ? "#be830e" : "#ffffff";
+    const colorAnim = isFinder ? "qr-color-gold" : "qr-color-light";
+    const delay = stagger(i, 5);
 
     const animation = [
-      `qr-pulse ${interval}s cubic-bezier(0.22, 1, 0.36, 1) ${baseDelay}s infinite`,
-      `${colorName} ${colorDuration}s ease-in-out ${colorDelay}s infinite`,
+      `qr-morph ${8 + stagger(i, 4)}s cubic-bezier(0.22, 1, 0.36, 1) ${delay}s infinite`,
+      `${colorAnim} ${(isFinder ? 8 : 10) + stagger(i, 3)}s ease-in-out ${delay}s infinite`,
     ].join(", ");
 
     rects.push(

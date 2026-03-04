@@ -72,7 +72,7 @@ Content is vertically and horizontally centred.
 
 ---
 
-## Get the slides
+<!-- _class: centered -->
 
 ![qr](https://cyberneticstudio.xyz/decks/example/)
 

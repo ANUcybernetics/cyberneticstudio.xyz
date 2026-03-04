@@ -338,23 +338,25 @@ body.reveal-viewport {
 }
 
 .qr-code svg {
-  width: 360px;
-  height: 360px;
+  width: 480px;
+  height: 480px;
 }
 
 .qr-code span {
-  font-size: 1.5rem;
+  font-size: 2rem;
   color: var(--anu-gold);
 }
 
 @media screen and (prefers-reduced-motion: no-preference) {
-  @keyframes qr-pulse {
+  @keyframes qr-morph {
     0%,
     100% {
-      transform: scale(1);
+      rx: 5;
+      ry: 5;
     }
     50% {
-      transform: scale(0.85);
+      rx: 1;
+      ry: 1;
     }
   }
 
