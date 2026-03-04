@@ -120,25 +120,41 @@ describe("deckPreprocessor", () => {
     it("handles fenced code blocks", async () => {
       const md = '## Example\n\n```python\ndef hello():\n    print("hello")\n```';
       const result = await process(md);
-      expect(result).toMatch(/<pre[\s>]/);
-      expect(result).toContain("<code");
-      expect(result).toContain("def");
-      expect(result).toContain("hello");
+      expect(result).toContain("<Code");
+      expect(result).toContain('lang="python"');
+      expect(result).toContain('theme="poimandres"');
+      expect(result).toContain("def hello()");
     });
 
     it("handles fenced code blocks with no language", async () => {
       const md = "```\nconst x = 1;\n```";
       const result = await process(md);
-      expect(result).toMatch(/<pre[\s>]/)
-      expect(result).toContain("<code");
+      expect(result).toContain("<Code");
+      expect(result).toContain('lang="text"');
       expect(result).toContain("const x = 1;");
+    });
+
+    it("JSON-escapes code block content", async () => {
+      const md = '```js\nconst x = { "key": `tmpl` };\n```';
+      const result = await process(md);
+      expect(result).toContain('<Code code={"const x = { \\"key\\": `tmpl` };"} lang="js"');
+    });
+
+    it("preserves order in mixed heading + code slides", async () => {
+      const md = '## Title\n\n```python\nx = 1\n```\n\nSome text after';
+      const result = await process(md);
+      const slideContent = result!.split("<Slide>")[1]?.split("</Slide>")[0] || "";
+      const h2Pos = slideContent.indexOf("<h2>");
+      const codePos = slideContent.indexOf("<Code");
+      const textPos = slideContent.indexOf("Some text after");
+      expect(h2Pos).toBeLessThan(codePos);
+      expect(codePos).toBeLessThan(textPos);
     });
 
     it("does not extract script tags inside fenced code blocks", async () => {
       const md = '## Example\n\n```html\n<script>\n  console.log("hi");\n</script>\n```';
       const result = await process(md);
-      expect(result).toMatch(/<pre[\s>]/);
-      expect(result).toContain("<code");
+      expect(result).toContain("<Code");
       const slideContent = result!.split("<Slide>")[1]?.split("</Slide>")[0] || "";
       expect(slideContent).toContain("console");
     });

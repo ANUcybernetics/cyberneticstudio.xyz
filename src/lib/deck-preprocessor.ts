@@ -1,10 +1,9 @@
 import type { PreprocessorGroup } from "svelte/compiler";
-import type { Root, RootContent, Html } from "mdast";
+import type { Root, RootContent, Code, Html } from "mdast";
 import { unified } from "unified";
 import remarkParse from "remark-parse";
 import remarkGfm from "remark-gfm";
 import remarkRehype from "remark-rehype";
-import rehypeShiki from "@shikijs/rehype";
 import rehypeStringify from "rehype-stringify";
 import { generateLogoSlide } from "./deck-svg/logo-slide.js";
 import { generateQrCode } from "./deck-svg/qr-code.js";
@@ -34,7 +33,6 @@ const parseProcessor = unified().use(remarkParse).use(remarkGfm);
 
 const htmlProcessor = unified()
   .use(remarkRehype, { allowDangerousHtml: true })
-  .use(rehypeShiki, { theme: "poimandres" })
   .use(rehypeStringify, { allowDangerousHtml: true });
 
 function fencedCodeRanges(text: string): [number, number][] {
@@ -230,10 +228,33 @@ function buildSplitWrapper(images: BgImage[], innerHtml: string): string {
   return `<div class="split-layout">${contentDiv}${imageDiv}</div>`;
 }
 
-function escapeSvelteInPre(html: string): string {
-  return html.replace(/<pre[^>]*>[\s\S]*?<\/pre>/g, (block) =>
-    block.replace(/\{/g, "&#123;").replace(/\}/g, "&#125;"),
-  );
+function codeNodeToComponent(node: Code): string {
+  const lang = node.lang || "text";
+  return `<Code code={${JSON.stringify(node.value)}} lang="${lang}" theme="poimandres" />`;
+}
+
+async function processSlideContent(nodes: RootContent[]): Promise<string> {
+  const parts: string[] = [];
+  let htmlBatch: RootContent[] = [];
+
+  async function flushHtmlBatch() {
+    if (htmlBatch.length > 0) {
+      parts.push(await astToHtml(htmlBatch));
+      htmlBatch = [];
+    }
+  }
+
+  for (const node of nodes) {
+    if (node.type === "code") {
+      await flushHtmlBatch();
+      parts.push(codeNodeToComponent(node as Code));
+    } else {
+      htmlBatch.push(node);
+    }
+  }
+  await flushHtmlBatch();
+
+  return parts.join("\n");
 }
 
 function addAutoImports(scriptContent: string): string {
@@ -313,8 +334,7 @@ export function deckPreprocessor(): PreprocessorGroup {
           innerHtml = groupText.replace(QR_IMAGE_RE, (_, url) => generateQrCode(url));
         } else {
           const afterQr = replaceQrImagesInAst(afterBg);
-          const html = await astToHtml(afterQr);
-          innerHtml = escapeSvelteInPre(html);
+          innerHtml = await processSlideContent(afterQr);
         }
 
         innerHtml = buildSplitWrapper(images, innerHtml);
