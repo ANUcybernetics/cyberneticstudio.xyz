@@ -3,6 +3,7 @@ import type { Root, RootContent, Code, Html } from "mdast";
 import { unified } from "unified";
 import remarkParse from "remark-parse";
 import remarkGfm from "remark-gfm";
+import remarkFrontmatter from "remark-frontmatter";
 import remarkRehype from "remark-rehype";
 import rehypeStringify from "rehype-stringify";
 import { generateLogoSlide } from "./deck-svg/logo-slide.js";
@@ -31,36 +32,38 @@ interface BgImage {
   filters?: string;
 }
 
-const parseProcessor = unified().use(remarkParse).use(remarkGfm);
+const parseProcessor = unified().use(remarkParse).use(remarkGfm).use(remarkFrontmatter);
 
 const htmlProcessor = unified()
   .use(remarkRehype, { allowDangerousHtml: true })
   .use(rehypeStringify, { allowDangerousHtml: true });
 
-function fencedCodeRanges(text: string): [number, number][] {
-  const ranges: [number, number][] = [];
-  const lines = text.split("\n");
-  let offset = 0;
-  let fenceLen = 0;
-  let fenceStart = 0;
+function separateAstNodes(root: Root): {
+  scripts: string[];
+  styles: string[];
+  content: RootContent[];
+} {
+  const scripts: string[] = [];
+  const styles: string[] = [];
+  const content: RootContent[] = [];
 
-  for (const line of lines) {
-    if (fenceLen === 0) {
-      const m = line.match(/^(`{3,})/);
-      if (m) {
-        fenceLen = m[1].length;
-        fenceStart = offset;
+  for (const node of root.children) {
+    if (node.type === "yaml") continue;
+    if (node.type === "html") {
+      const val = (node as Html).value;
+      if (/^<script[\s>]/i.test(val)) {
+        scripts.push(val);
+        continue;
       }
-    } else {
-      const m = line.match(/^(`{3,})\s*$/);
-      if (m && m[1].length >= fenceLen) {
-        ranges.push([fenceStart, offset + line.length]);
-        fenceLen = 0;
+      if (/^<style[\s>]/i.test(val)) {
+        styles.push(val);
+        continue;
       }
     }
-    offset += line.length + 1;
+    content.push(node);
   }
-  return ranges;
+
+  return { scripts, styles, content };
 }
 
 function parseBgModifiers(modifiers: string): Omit<BgImage, "url"> {
@@ -97,11 +100,11 @@ function parseBgModifiers(modifiers: string): Omit<BgImage, "url"> {
   return result;
 }
 
-function splitAtThematicBreaks(root: Root): RootContent[][] {
+function splitAtThematicBreaks(nodes: RootContent[]): RootContent[][] {
   const groups: RootContent[][] = [];
   let current: RootContent[] = [];
 
-  for (const node of root.children) {
+  for (const node of nodes) {
     if (node.type === "thematicBreak") {
       groups.push(current);
       current = [];
@@ -267,18 +270,49 @@ async function processSlideContent(nodes: RootContent[]): Promise<string> {
   return parts.join("\n");
 }
 
-function addAutoImports(scriptContent: string): string {
-  let result = scriptContent;
+function buildScriptBlock(
+  userScripts: string[],
+  imageImports: Map<string, string>,
+  bgHtmlDecls: string[],
+): string {
+  let scriptAttrs = ' lang="ts"';
+  let userBody = "";
+
+  if (userScripts.length > 0) {
+    const raw = userScripts.join("\n");
+    const tagMatch = raw.match(/^<script([^>]*)>/i);
+    if (tagMatch) scriptAttrs = tagMatch[1];
+    const bodyMatch = raw.match(/^<script[^>]*>([\s\S]*)<\/script>\s*$/i);
+    if (bodyMatch) userBody = bodyMatch[1];
+  }
+
+  const lines: string[] = [];
+  lines.push(`<script${scriptAttrs}>`);
+
   for (const imp of AUTO_IMPORTS) {
     const modPath = imp.match(/from\s+"([^"]+)"/)?.[1] || imp.match(/import\s+"([^"]+)"/)?.[1];
-    if (modPath && !result.includes(modPath)) {
-      result = result.replace(
-        /(<script[^>]*>)/i,
-        `$1\n  ${imp}`,
-      );
+    if (modPath && !userBody.includes(modPath)) {
+      lines.push(`  ${imp}`);
     }
   }
-  return result;
+
+  for (const [url, varName] of imageImports) {
+    const importPath = url.startsWith("./") || url.startsWith("../") ? url : `./${url}`;
+    lines.push(`  import ${varName} from '${importPath}';`);
+  }
+
+  if (userBody.trim()) {
+    lines.push(userBody.trimEnd());
+  }
+
+  lines.push(REVEAL_BRIDGE);
+
+  for (const decl of bgHtmlDecls) {
+    lines.push(`  ${decl}`);
+  }
+
+  lines.push("</script>");
+  return lines.join("\n");
 }
 
 export function deckPreprocessor(): PreprocessorGroup {
@@ -289,31 +323,14 @@ export function deckPreprocessor(): PreprocessorGroup {
         return undefined;
       }
 
-      const scripts: string[] = [];
-      const styles: string[] = [];
+      const root = parseProcessor.parse(content);
+      const { scripts, styles, content: contentNodes } = separateAstNodes(root);
 
-      const fences = fencedCodeRanges(content);
-      const SCRIPT_OR_STYLE_RE = /<(script|style)[\s\S]*?<\/\1>/gi;
-
-      let template = content.replace(
-        SCRIPT_OR_STYLE_RE,
-        (match, tag, offset) => {
-          if (fences.some(([s, e]) => offset >= s && offset <= e)) return match;
-          if (tag.toLowerCase() === "script") scripts.push(match);
-          else styles.push(match);
-          return "";
-        },
-      );
-
-      template = template.trim();
-      template = template.replace(/^---\n[\s\S]*?\n---\n/, "");
-
-      if (!template) {
+      if (contentNodes.length === 0) {
         return undefined;
       }
 
-      const root = parseProcessor.parse(template);
-      const groups = splitAtThematicBreaks(root);
+      const groups = splitAtThematicBreaks(contentNodes);
       const slideOutputs: string[] = [];
       const imageImportMap = new Map<string, string>();
       const bgHtmlDecls: string[] = [];
@@ -368,7 +385,7 @@ export function deckPreprocessor(): PreprocessorGroup {
         }
 
         let innerHtml: string;
-        const groupText = sliceNodesText(afterBg, template);
+        const groupText = sliceNodesText(afterBg, content);
 
         if (ANIMOTION_COMPONENT_RE.test(groupText)) {
           innerHtml = groupText.replace(QR_IMAGE_RE, (_, url) => generateQrCode(url));
@@ -402,31 +419,8 @@ export function deckPreprocessor(): PreprocessorGroup {
         );
       }
 
-      let scriptBlock =
-        scripts.length > 0 ? scripts.join("\n") : '<script lang="ts">\n</script>';
-      scriptBlock = addAutoImports(scriptBlock);
-      scriptBlock = scriptBlock.replace(/<\/script>/i, `\n${REVEAL_BRIDGE}\n</script>`);
-
+      const scriptBlock = buildScriptBlock(scripts, imageImportMap, bgHtmlDecls);
       const presentationContent = slideOutputs.join("\n\n");
-
-      if (imageImportMap.size > 0) {
-        const importLines = [...imageImportMap.entries()]
-          .map(([url, varName]) => {
-            const importPath = url.startsWith("./") || url.startsWith("../") ? url : `./${url}`;
-            return `import ${varName} from '${importPath}';`;
-          });
-        scriptBlock = scriptBlock.replace(
-          /(<script[^>]*>)/i,
-          `$1\n  ${importLines.join("\n  ")}`,
-        );
-        if (bgHtmlDecls.length > 0) {
-          scriptBlock = scriptBlock.replace(
-            /<\/script>/i,
-            `  ${bgHtmlDecls.join("\n  ")}\n</script>`,
-          );
-        }
-      }
-
       const styleBlock = styles.length > 0 ? "\n" + styles.join("\n") : "";
 
       const code = `${scriptBlock}\n\n<Presentation options={{ width: 1280, height: 720, transition: "none", disableLayout: false }}>\n${presentationContent}\n</Presentation>${styleBlock}\n`;
