@@ -25,6 +25,7 @@ Markdown-authored slide decks using animotion (Svelte + Reveal.js + Tailwind). F
 
 - slides: `src/decks/<slug>/slides.deck.svelte`
 - Astro page: `src/pages/decks/<slug>/index.astro` (uses `DeckLayout` + `client:only="svelte"`)
+- shared assets: `src/decks/assets/` (logos, shared bg images across decks)
 - theme: `src/decks/deck-theme.css` (ANU gold/copper palette, Public Sans via Google Fonts)
 - preprocessor: `src/lib/deck-preprocessor.ts` (registered in `astro.config.mjs`)
 - SvelteKit shim: `src/lib/sveltekit-shims/environment.js` (mocks `$app/environment` for animotion's Transition component)
@@ -35,7 +36,7 @@ Slides are `.deck.svelte` files in `src/decks/` that get preprocessed: markdown 
 
 - `<!-- _class: impact -->` --- set slide CSS class (available: `impact`, `quote`, `centered`)
 - `<!-- notes: Speaker notes here -->` --- presenter notes
-- `![bg](url)` --- full-bleed background image (also `contain`, `cover`). Relative paths (e.g. `./photo.jpg`) resolve to co-located images via Vite imports; absolute paths (`/images/...`) reference `public/`
+- `![bg](url)` --- full-bleed background image (also `contain`, `cover`). Relative paths resolve via Vite imports: `./assets/photo.jpg` for deck-local images, `../assets/photo.jpg` for shared images in `src/decks/assets/`; absolute paths (`/images/...`) reference `public/`
 - `![bg left:50%](url)` / `![bg right:40%](url)` --- split layout with image
 - `![bg blur:5px brightness:0.7](url)` --- CSS filters on background
 - sections containing animotion components (`<Action>`, `<Code>`, `<Transition>`) skip markdown processing and pass through as raw Svelte

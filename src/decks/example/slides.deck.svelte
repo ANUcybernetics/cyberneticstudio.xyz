@@ -58,7 +58,7 @@ _here's_ the **thing**
 
 ---
 
-![bg brightness:0.5](./assets/bg-div-mechanic.avif)
+![bg brightness:0.5](../assets/bg-div-mechanic.avif)
 
 # Section break
 

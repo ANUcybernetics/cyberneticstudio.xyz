@@ -3,7 +3,7 @@ import { resolve, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const LOGOS_DIR = resolve(__dirname, "../../decks/logos");
+const LOGOS_DIR = resolve(__dirname, "../../decks/assets");
 
 const svgCache = new Map<string, string>();
 
