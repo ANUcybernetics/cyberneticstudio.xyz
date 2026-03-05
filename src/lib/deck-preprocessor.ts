@@ -201,7 +201,6 @@ function buildBgDiv(images: BgImage[]): string {
   if (!fullBleed) return "";
 
   const size = fullBleed.size || "cover";
-  const filterPart = fullBleed.filters ? `; filter: ${fullBleed.filters}` : "";
 
   if (fullBleed.htmlVar) {
     return `{@html ${fullBleed.htmlVar}}`;
