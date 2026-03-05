@@ -40,7 +40,7 @@ end
 
 ---
 
-![bg right:50%](/images/ben-swift.webp)
+![bg right:50%](./assets/ben-swift.avif)
 
 ## Split layout
 
@@ -58,7 +58,7 @@ _here's_ the **thing**
 
 ---
 
-![bg brightness:0.5](/images/bg-div-mechanic.avif)
+![bg brightness:0.5](./assets/bg-div-mechanic.avif)
 
 # Section break
 

@@ -23,6 +23,8 @@ const REVEAL_BRIDGE = '  const __p = getPresentation(); $effect(() => { if (__p.
 
 interface BgImage {
   url: string;
+  importVar?: string;
+  htmlVar?: string;
   position?: "left" | "right";
   size?: string;
   splitPercent?: string;
@@ -198,9 +200,16 @@ function buildBgDiv(images: BgImage[]): string {
   const fullBleed = images.find((img) => !img.position);
   if (!fullBleed) return "";
 
+  const size = fullBleed.size || "cover";
+  const filterPart = fullBleed.filters ? `; filter: ${fullBleed.filters}` : "";
+
+  if (fullBleed.htmlVar) {
+    return `{@html ${fullBleed.htmlVar}}`;
+  }
+
   const styleParts = [
     `background-image: url('${fullBleed.url}')`,
-    `background-size: ${fullBleed.size || "cover"}`,
+    `background-size: ${size}`,
     "background-position: center",
   ];
   if (fullBleed.filters) {
@@ -219,7 +228,9 @@ function buildSplitWrapper(images: BgImage[], innerHtml: string): string {
     ? `; filter: ${splitImage.filters}`
     : "";
 
-  const imageDiv = `<div class="split-image" style="background-image: url('${splitImage.url}'); width: ${imagePercent}${filterPart}"></div>`;
+  const imageDiv = splitImage.htmlVar
+    ? `{@html ${splitImage.htmlVar}}`
+    : `<div class="split-image" style="background-image: url('${splitImage.url}'); width: ${imagePercent}${filterPart}"></div>`;
   const contentDiv = `<div class="split-content" style="width: ${contentPercent}">${innerHtml}</div>`;
 
   if (splitImage.position === "left") {
@@ -305,6 +316,10 @@ export function deckPreprocessor(): PreprocessorGroup {
       const root = parseProcessor.parse(template);
       const groups = splitAtThematicBreaks(root);
       const slideOutputs: string[] = [];
+      const imageImportMap = new Map<string, string>();
+      const bgHtmlDecls: string[] = [];
+      let imgCounter = 0;
+      let bgHtmlCounter = 0;
 
       for (const group of groups) {
         if (group.length === 0) continue;
@@ -326,6 +341,32 @@ export function deckPreprocessor(): PreprocessorGroup {
         }
 
         const { images, remaining: afterBg } = extractBgImagesFromAst(afterMeta);
+
+        for (const img of images) {
+          if (!img.url.startsWith("/") && !/^https?:\/\//.test(img.url)) {
+            if (!imageImportMap.has(img.url)) {
+              imageImportMap.set(img.url, `__deckImg${imgCounter++}`);
+            }
+            img.importVar = imageImportMap.get(img.url);
+
+            const htmlVarName = `__bgHtml${bgHtmlCounter++}`;
+            img.htmlVar = htmlVarName;
+
+            const size = img.size || "cover";
+            const filterCss = img.filters ? `; filter: ${img.filters}` : "";
+            const imgSrc = `(typeof ${img.importVar} === 'string' ? ${img.importVar} : ${img.importVar}.src)`;
+            if (img.position) {
+              const percent = img.splitPercent || "50%";
+              bgHtmlDecls.push(
+                `const ${htmlVarName} = '<div class="split-image" style="background-image: url(' + ${imgSrc} + '); width: ${percent}${filterCss}"></div>';`,
+              );
+            } else {
+              bgHtmlDecls.push(
+                `const ${htmlVarName} = '<div class="slide-bg" style="background-image: url(' + ${imgSrc} + '); background-size: ${size}; background-position: center${filterCss}"></div>';`,
+              );
+            }
+          }
+        }
 
         let innerHtml: string;
         const groupText = sliceNodesText(afterBg, template);
@@ -356,6 +397,25 @@ export function deckPreprocessor(): PreprocessorGroup {
       scriptBlock = scriptBlock.replace(/<\/script>/i, `\n${REVEAL_BRIDGE}\n</script>`);
 
       const presentationContent = slideOutputs.join("\n\n");
+
+      if (imageImportMap.size > 0) {
+        const importLines = [...imageImportMap.entries()]
+          .map(([url, varName]) => {
+            const importPath = url.startsWith("./") || url.startsWith("../") ? url : `./${url}`;
+            return `import ${varName} from '${importPath}';`;
+          });
+        scriptBlock = scriptBlock.replace(
+          /(<script[^>]*>)/i,
+          `$1\n  ${importLines.join("\n  ")}`,
+        );
+        if (bgHtmlDecls.length > 0) {
+          scriptBlock = scriptBlock.replace(
+            /<\/script>/i,
+            `  ${bgHtmlDecls.join("\n  ")}\n</script>`,
+          );
+        }
+      }
+
       const styleBlock = styles.length > 0 ? "\n" + styles.join("\n") : "";
 
       const code = `${scriptBlock}\n\n<Presentation options={{ width: 1280, height: 720, transition: "none", disableLayout: false }}>\n${presentationContent}\n</Presentation>${styleBlock}\n`;

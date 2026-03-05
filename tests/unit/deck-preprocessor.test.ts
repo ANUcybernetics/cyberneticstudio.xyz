@@ -214,8 +214,9 @@ describe("deckPreprocessor", () => {
   describe("bg image integration", () => {
     it("maps full-bleed bg to slide-bg div", async () => {
       const result = await process("![bg](hero.jpg)\n\n# Title");
-      expect(result).toContain('class="slide-bg"');
-      expect(result).toContain("background-image: url('hero.jpg')");
+      expect(result).toContain("{@html __bgHtml0}");
+      expect(result).toContain("import __deckImg0 from './hero.jpg'");
+      expect(result).toContain("const __bgHtml0 = '<div class=\"slide-bg\"");
       expect(result).toContain("background-size: cover");
     });
 
@@ -238,9 +239,28 @@ describe("deckPreprocessor", () => {
 
     it("maps brightness filter to inline style", async () => {
       const result = await process("![bg brightness:0.5](hero.jpg)\n\n# Title");
-      expect(result).toContain("background-image: url('hero.jpg')");
+      expect(result).toContain("{@html __bgHtml0}");
+      expect(result).toContain("import __deckImg0 from './hero.jpg'");
       expect(result).toContain("filter: brightness(0.5)");
       expect(result).not.toContain("split-layout");
+    });
+
+    it("preserves absolute URLs without generating imports", async () => {
+      const result = await process("![bg](/images/hero.jpg)\n\n# Title");
+      expect(result).toContain("background-image: url('/images/hero.jpg')");
+      expect(result).not.toContain("__deckImg");
+    });
+
+    it("preserves external URLs without generating imports", async () => {
+      const result = await process("![bg](https://example.com/hero.jpg)\n\n# Title");
+      expect(result).toContain("url('https://example.com/hero.jpg')");
+      expect(result).not.toContain("__deckImg");
+    });
+
+    it("deduplicates imports for repeated relative URLs", async () => {
+      const result = await process("![bg](hero.jpg)\n\n# Slide 1\n\n---\n\n![bg](hero.jpg)\n\n# Slide 2");
+      const importCount = (result!.match(/import __deckImg/g) || []).length;
+      expect(importCount).toBe(1);
     });
 
     it("does not affect regular images", async () => {

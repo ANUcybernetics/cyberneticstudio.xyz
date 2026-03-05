@@ -35,7 +35,7 @@ Slides are `.deck.svelte` files in `src/decks/` that get preprocessed: markdown 
 
 - `<!-- _class: impact -->` --- set slide CSS class (available: `impact`, `quote`, `centered`)
 - `<!-- notes: Speaker notes here -->` --- presenter notes
-- `![bg](url)` --- full-bleed background image (also `contain`, `cover`)
+- `![bg](url)` --- full-bleed background image (also `contain`, `cover`). Relative paths (e.g. `./photo.jpg`) resolve to co-located images via Vite imports; absolute paths (`/images/...`) reference `public/`
 - `![bg left:50%](url)` / `![bg right:40%](url)` --- split layout with image
 - `![bg blur:5px brightness:0.7](url)` --- CSS filters on background
 - sections containing animotion components (`<Action>`, `<Code>`, `<Transition>`) skip markdown processing and pass through as raw Svelte
