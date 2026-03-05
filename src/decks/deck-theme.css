@@ -4,6 +4,10 @@
 
 @import "@animotion/core/theme";
 
+html {
+  font-size: 12px;
+}
+
 :root {
   --anu-white: #ffffff;
   --anu-light-grey: #e6e6e6;
@@ -151,12 +155,27 @@ body.reveal-viewport {
     }
   }
 
-  &:has(h1) { place-content: center; }
+  &:has(h1):not(:has(.split-layout)) { place-content: center; }
 
   h1 + h2 {
     color: var(--anu-light-grey);
     font-weight: normal;
     text-transform: none;
+  }
+
+  /* banner: gold-box text over fullscreen bg */
+  &.banner {
+    place-content: center;
+
+    :is(h1, h2, h3, p, li) {
+      display: inline;
+      background-color: var(--anu-gold);
+      color: var(--anu-white);
+      padding: 0.1em 0.3em;
+      box-decoration-break: clone;
+    }
+
+    h2 { font-weight: normal; text-transform: none; }
   }
 
   /* impact: gold bg, white text */
@@ -167,9 +186,7 @@ body.reveal-viewport {
     text-align: center;
 
     :is(h1, h2, h3, h4, h5, h6) { color: var(--anu-white); }
-    h1 { font-size: 10.5rem; }
-    h2 { font-size: 7.5rem; }
-    :is(p, li) { font-size: 6rem; line-height: 1.4; }
+    :is(p, li) { font-size: 5rem; line-height: 1.4; }
     strong, em { color: var(--anu-dark-grey); }
     code { background: var(--anu-dark-grey); color: var(--anu-white); border-color: var(--anu-dark-grey); }
     a { color: var(--anu-white); }

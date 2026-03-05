@@ -378,6 +378,18 @@ export function deckPreprocessor(): PreprocessorGroup {
           innerHtml = await processSlideContent(afterQr);
         }
 
+        innerHtml = innerHtml.replace(
+          /<img\b([^>]*?)\bsrc=["'](\.\.?\/[^"']+)["']([^>]*?)>/g,
+          (_match, before, url, after) => {
+            if (!imageImportMap.has(url)) {
+              imageImportMap.set(url, `__deckImg${imgCounter++}`);
+            }
+            const varName = imageImportMap.get(url)!;
+            const srcExpr = `{typeof ${varName} === 'string' ? ${varName} : ${varName}.src}`;
+            return `<img${before}src=${srcExpr}${after}>`;
+          },
+        );
+
         innerHtml = buildSplitWrapper(images, innerHtml);
 
         const slideAttrs = buildSlideAttrs(slideClass);

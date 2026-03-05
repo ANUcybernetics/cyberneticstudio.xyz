@@ -2,17 +2,17 @@
   import type { Component } from "svelte";
 
   interface Props {
-    slug: string;
+    deckPath: string;
   }
 
-  const { slug }: Props = $props();
+  const { deckPath }: Props = $props();
 
-  const modules = import.meta.glob<{ default: Component }>("/src/decks/*/slides.deck.svelte");
+  const modules = import.meta.glob<{ default: Component }>("/src/decks/**/*.deck.svelte");
 
   let Deck: Component | undefined = $state();
 
   $effect(() => {
-    const loader = modules[`/src/decks/${slug}/slides.deck.svelte`];
+    const loader = modules[deckPath];
     loader?.().then((m) => { Deck = m.default; });
   });
 </script>

@@ -58,6 +58,8 @@ _here's_ the **thing**
 
 ---
 
+<!-- _class: banner -->
+
 ![bg brightness:0.5](../assets/bg-div-mechanic.avif)
 
 # Section break
