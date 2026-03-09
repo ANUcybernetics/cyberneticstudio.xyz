@@ -1,0 +1,68 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import { parseDeckFrontmatter } from "../../lib/deck-meta";
+import fs from "node:fs";
+import path from "node:path";
+
+interface DeckEntry {
+  slug: string;
+  title: string;
+  description?: string;
+}
+
+const decksDir = path.resolve("src/decks");
+const decks: DeckEntry[] = [];
+
+for (const dir of fs.readdirSync(decksDir, { withFileTypes: true })) {
+  if (!dir.isDirectory()) continue;
+  const dirPath = path.join(decksDir, dir.name);
+
+  for (const file of fs.readdirSync(dirPath)) {
+    const match = file.match(/^(.+)\.deck\.svelte$/);
+    if (!match) continue;
+
+    const name = match[1];
+    const raw = fs.readFileSync(path.join(dirPath, file), "utf-8");
+    const { data } = parseDeckFrontmatter(raw, dir.name);
+    const slug = name === "slides" ? dir.name : `${dir.name}/${name}`;
+
+    decks.push({
+      slug,
+      title: data.title ?? slug,
+      description: data.description,
+    });
+  }
+}
+
+decks.sort((a, b) => a.slug.localeCompare(b.slug));
+---
+
+<BaseLayout title="Decks">
+  <h1>Decks</h1>
+  <ul>
+    {decks.map((deck) => (
+      <li>
+        <a href={`/decks/${deck.slug}/`}>{deck.title}</a>
+        {deck.description && <span> — {deck.description}</span>}
+      </li>
+    ))}
+  </ul>
+</BaseLayout>
+
+<style>
+  h1 {
+    margin-bottom: 2rem;
+  }
+
+  ul {
+    list-style: none;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  li span {
+    opacity: 0.7;
+  }
+</style>
