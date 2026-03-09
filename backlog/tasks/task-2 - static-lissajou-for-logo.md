@@ -1,7 +1,7 @@
 ---
 id: TASK-2
 title: static lissajou for logo
-status: To Do
+status: Done
 assignee: []
 created_date: "2026-03-03 21:58"
 labels: []
