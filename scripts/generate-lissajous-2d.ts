@@ -34,6 +34,8 @@ const EDGE_TABLE: [number, number][][] = [
   [],
 ];
 
+const clamp = (v: number) => Math.max(0, Math.min(1, v));
+
 function edgePoint(
   edge: number,
   row: number,
@@ -44,7 +46,6 @@ function edgePoint(
   bl: number,
   threshold: number,
 ): Point {
-  const clamp = (v: number) => Math.max(0, Math.min(1, v));
   switch (edge) {
     case 0: {
       const t = clamp((threshold - tl) / (tr - tl || 1e-10));
@@ -100,13 +101,14 @@ function marchingSquares(
   return chainSegments(segments);
 }
 
+const pointKey = (p: Point) => `${p[0].toFixed(4)},${p[1].toFixed(4)}`;
+
 function chainSegments(segments: [Point, Point][]): Point[][] {
-  const key = (p: Point) => `${p[0].toFixed(4)},${p[1].toFixed(4)}`;
   const adj = new Map<string, { point: Point; neighbors: string[] }>();
 
   for (const [p1, p2] of segments) {
-    const k1 = key(p1);
-    const k2 = key(p2);
+    const k1 = pointKey(p1);
+    const k2 = pointKey(p2);
     if (!adj.has(k1)) adj.set(k1, { point: p1, neighbors: [] });
     if (!adj.has(k2)) adj.set(k2, { point: p2, neighbors: [] });
     adj.get(k1)!.neighbors.push(k2);
