@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { onFrame } from "../lib/animation-time.svelte";
+  import { onFrame } from "../lib/animation-time";
 
   interface Coeff {
     k: number;

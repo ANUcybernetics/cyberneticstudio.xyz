@@ -7,7 +7,6 @@ const THRESHOLDS = [0.15, 0.3, 0.45, 0.6, 0.75, 0.9];
 const MIN_CONTOUR_POINTS = 20;
 const COEFFS_PER_CURVE = 250;
 const MAX_CURVES = 15;
-const SAMPLES_PER_T = 400;
 
 type Point = [number, number];
 
@@ -112,7 +111,7 @@ function chainSegments(segments: [Point, Point][]): Point[][] {
   const visited = new Set<string>();
   const contours: Point[][] = [];
 
-  for (const [startKey, startNode] of adj) {
+  for (const [startKey] of adj) {
     if (visited.has(startKey)) continue;
     const contour: Point[] = [];
     let currentKey = startKey;
