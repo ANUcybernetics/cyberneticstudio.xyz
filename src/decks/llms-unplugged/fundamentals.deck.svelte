@@ -1,5 +1,5 @@
 ---
-title: LLMs Unplugged (90 min)
+title: LLMs Unplugged (Fundamentals)
 description: A Cybernetic Studio workshop
 ---
 
