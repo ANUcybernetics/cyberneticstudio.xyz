@@ -20,7 +20,7 @@
   let data: LissajousData | null = $state(null);
 
   const SAMPLES = 400;
-  const MAX_DRIFT = 12;
+  const MAX_DRIFT = 25;
 
   const reducedMotion =
     typeof window !== "undefined" &&
@@ -98,7 +98,8 @@
 
       for (let j = 0; j < n; j++) {
         const { k, re, im } = coeffs[j];
-        const timeAngle = k * (k + 1) * MAX_DRIFT * driftAmount;
+        const absK = Math.abs(k);
+        const timeAngle = Math.sign(k) * Math.sqrt(absK) * MAX_DRIFT * driftAmount;
         const cosT = Math.cos(timeAngle);
         const sinT = Math.sin(timeAngle);
         rotRe[j] = re * cosT - im * sinT;
