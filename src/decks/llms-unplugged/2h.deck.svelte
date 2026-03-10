@@ -28,10 +28,10 @@ Understand AI by building it yourself
 
 ---
 
-<div style="display: flex; gap: 0; height: 100%; width: 100%;">
-  <img src="../assets/headshot-eddie-anu.avif" style="flex: 1; object-fit: cover;" alt="Eddie">
-  <img src="../assets/headshot-ben-anu.avif" style="flex: 1; object-fit: cover;" alt="Ben">
-  <img src="../assets/headshot-cole-anu.avif" style="flex: 1; object-fit: cover;" alt="Cole">
+<div style="display: grid; grid-template-columns: 1fr 1fr 1fr; position: absolute; inset: 0;">
+  <img src="../assets/headshot-eddie-anu.avif" style="width: 100%; height: 100%; object-fit: cover;" alt="Eddie">
+  <img src="../assets/headshot-ben-anu.avif" style="width: 100%; height: 100%; object-fit: cover;" alt="Ben">
+  <img src="../assets/headshot-cole-anu.avif" style="width: 100%; height: 100%; object-fit: cover;" alt="Cole">
 </div>
 
 ---

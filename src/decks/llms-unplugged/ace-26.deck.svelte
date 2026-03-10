@@ -31,10 +31,10 @@ they're _A Thing_ now
 
 ---
 
-<div style="display: flex; gap: 0; height: 100%; width: 100%;">
-  <img src="../assets/bg-3up-phd.avif" style="flex: 1; object-fit: cover;" alt="PhD">
-  <img src="../assets/bg-3up-lecturer.avif" style="flex: 1; object-fit: cover;" alt="Lecturer">
-  <img src="../assets/bg-3up-kids.avif" style="flex: 1; object-fit: cover;" alt="Kids">
+<div style="display: grid; grid-template-columns: 1fr 1fr 1fr; position: absolute; inset: 0;">
+  <img src="../assets/bg-3up-phd.avif" style="width: 100%; height: 100%; object-fit: cover;" alt="PhD">
+  <img src="../assets/bg-3up-lecturer.avif" style="width: 100%; height: 100%; object-fit: cover;" alt="Lecturer">
+  <img src="../assets/bg-3up-kids.avif" style="width: 100%; height: 100%; object-fit: cover;" alt="Kids">
 </div>
 
 ---
