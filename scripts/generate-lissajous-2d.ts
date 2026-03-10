@@ -5,7 +5,7 @@ const IMAGE_SIZE = 192;
 const BLUR_SIGMA = 1.5;
 const THRESHOLDS = [0.15, 0.3, 0.45, 0.6, 0.75, 0.9];
 const MIN_CONTOUR_POINTS = 20;
-const COEFFS_PER_CURVE = 150;
+const COEFFS_PER_CURVE = 250;
 const MAX_CURVES = 15;
 const SAMPLES_PER_T = 400;
 
