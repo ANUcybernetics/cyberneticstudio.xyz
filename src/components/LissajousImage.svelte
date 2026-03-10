@@ -19,7 +19,7 @@
   let height = $state(0);
   let data: LissajousData | null = $state(null);
 
-  const SAMPLES = 400;
+  const BASE_SAMPLES = 400;
   const MAX_DRIFT = 25;
 
   const reducedMotion =
@@ -66,6 +66,7 @@
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     ctx.clearRect(0, 0, w, h);
 
+    const samples = Math.max(BASE_SAMPLES, Math.round(w * 0.5));
     const periodMs = d.resolvePeriod * 1000;
     const cycleFrac = (phase % periodMs) / periodMs;
     const s = Math.sin(Math.PI * cycleFrac);
@@ -105,7 +106,7 @@
         rotRe[j] = re * cosT - im * sinT;
         rotIm[j] = im * cosT + re * sinT;
 
-        const stepAngle = (2 * Math.PI * k) / SAMPLES;
+        const stepAngle = (2 * Math.PI * k) / samples;
         stepCos[j] = Math.cos(stepAngle);
         stepSin[j] = Math.sin(stepAngle);
       }
@@ -113,7 +114,7 @@
       const curCos = new Float64Array(n).fill(1);
       const curSin = new Float64Array(n).fill(0);
 
-      for (let s = 0; s <= SAMPLES; s++) {
+      for (let s = 0; s <= samples; s++) {
         let px = 0;
         let py = 0;
 
@@ -131,7 +132,7 @@
           ctx.lineTo(x, y);
         }
 
-        if (s < SAMPLES) {
+        if (s < samples) {
           for (let j = 0; j < n; j++) {
             const newCos = curCos[j] * stepCos[j] - curSin[j] * stepSin[j];
             const newSin = curSin[j] * stepCos[j] + curCos[j] * stepSin[j];

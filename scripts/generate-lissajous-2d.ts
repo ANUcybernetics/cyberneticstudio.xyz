@@ -1,12 +1,17 @@
 import sharp from "sharp";
-import { writeFileSync } from "node:fs";
+import { readFileSync, writeFileSync } from "node:fs";
+import { resolve } from "node:path";
 
-const IMAGE_SIZE = 192;
+const IMAGE_WIDTH = 384;
+const IMAGE_HEIGHT = 128;
 const BLUR_SIGMA = 1.5;
 const THRESHOLDS = [0.15, 0.3, 0.45, 0.6, 0.75, 0.9];
 const MIN_CONTOUR_POINTS = 20;
 const COEFFS_PER_CURVE = 250;
-const MAX_CURVES = 15;
+const MAX_CURVES_IMAGE = 15;
+const MAX_CURVES_TEXT = 50;
+
+const FONT_PATH = resolve(import.meta.dirname, "../public/fonts/space-grotesk-latin.woff2");
 
 type Point = [number, number];
 
@@ -163,30 +168,55 @@ function complexDFT(
   }));
 }
 
-async function processImage(
-  imagePath: string,
+async function renderText(text: string): Promise<Buffer> {
+  const fontData = readFileSync(FONT_PATH);
+  const fontBase64 = fontData.toString("base64");
+
+  const svgWidth = 1200;
+  const svgHeight = 400;
+  const fontSize = Math.min(200, Math.floor(svgWidth / (text.length * 0.55)));
+
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${svgWidth}" height="${svgHeight}">
+  <defs>
+    <style>
+      @font-face {
+        font-family: "Space Grotesk";
+        src: url("data:font/woff2;base64,${fontBase64}") format("woff2");
+        font-weight: 700;
+      }
+    </style>
+  </defs>
+  <rect width="100%" height="100%" fill="black"/>
+  <text x="50%" y="55%" text-anchor="middle" dominant-baseline="central"
+        font-family="Space Grotesk" font-weight="700" font-size="${fontSize}"
+        fill="white">${escapeXml(text)}</text>
+</svg>`;
+
+  return Buffer.from(svg);
+}
+
+function escapeXml(s: string): string {
+  return s
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}
+
+async function processPixels(
+  pixels: Float64Array,
+  width: number,
+  height: number,
   outputPath: string,
+  maxCurves: number,
 ): Promise<void> {
-  const { data, info } = await sharp(imagePath)
-    .grayscale()
-    .resize(IMAGE_SIZE, IMAGE_SIZE, { fit: "cover" })
-    .blur(BLUR_SIGMA)
-    .raw()
-    .toBuffer({ resolveWithObject: true });
-
-  const { width, height } = info;
-  const pixels = new Float64Array(width * height);
-  for (let i = 0; i < data.length; i++) {
-    pixels[i] = data[i] / 255;
-  }
-
   const allContours: Point[][] = [];
   for (const threshold of THRESHOLDS) {
     allContours.push(...marchingSquares(pixels, width, height, threshold));
   }
 
   allContours.sort((a, b) => b.length - a.length);
-  const selected = allContours.slice(0, MAX_CURVES);
+  const selected = allContours.slice(0, maxCurves);
 
   const curves = selected.map((contour) => {
     const normalized: Point[] = contour.map(([x, y]) => [x / width, y / height]);
@@ -206,12 +236,68 @@ async function processImage(
   );
 }
 
-const [imagePath, outputPath] = process.argv.slice(2);
-if (!imagePath || !outputPath) {
-  console.error(
-    "Usage: npx tsx scripts/generate-lissajous-2d.ts <image> <output.json>",
-  );
-  process.exit(1);
+async function processImage(
+  imagePath: string,
+  outputPath: string,
+): Promise<void> {
+  const { data, info } = await sharp(imagePath)
+    .grayscale()
+    .resize(IMAGE_WIDTH, IMAGE_HEIGHT, { fit: "cover" })
+    .blur(BLUR_SIGMA)
+    .raw()
+    .toBuffer({ resolveWithObject: true });
+
+  const { width, height } = info;
+  const pixels = new Float64Array(width * height);
+  for (let i = 0; i < data.length; i++) {
+    pixels[i] = data[i] / 255;
+  }
+
+  await processPixels(pixels, width, height, outputPath, MAX_CURVES_IMAGE);
 }
 
-await processImage(imagePath, outputPath);
+async function processText(
+  text: string,
+  outputPath: string,
+): Promise<void> {
+  const svgBuffer = await renderText(text);
+  const { data, info } = await sharp(svgBuffer)
+    .grayscale()
+    .resize(IMAGE_WIDTH, IMAGE_HEIGHT, { fit: "fill" })
+    .blur(BLUR_SIGMA)
+    .raw()
+    .toBuffer({ resolveWithObject: true });
+
+  const { width, height } = info;
+  const pixels = new Float64Array(width * height);
+  for (let i = 0; i < data.length; i++) {
+    pixels[i] = data[i] / 255;
+  }
+
+  await processPixels(pixels, width, height, outputPath, MAX_CURVES_TEXT);
+}
+
+const args = process.argv.slice(2);
+
+if (args[0] === "--text") {
+  const text = args[1];
+  const outputPath = args[2];
+  if (!text || !outputPath) {
+    console.error(
+      "Usage: npx tsx scripts/generate-lissajous-2d.ts --text <title> <output.json>",
+    );
+    process.exit(1);
+  }
+  await processText(text, outputPath);
+} else {
+  const imagePath = args[0];
+  const outputPath = args[1];
+  if (!imagePath || !outputPath) {
+    console.error(
+      "Usage: npx tsx scripts/generate-lissajous-2d.ts <image> <output.json>\n" +
+      "       npx tsx scripts/generate-lissajous-2d.ts --text <title> <output.json>",
+    );
+    process.exit(1);
+  }
+  await processImage(imagePath, outputPath);
+}
