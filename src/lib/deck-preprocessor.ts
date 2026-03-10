@@ -8,6 +8,7 @@ import remarkRehype from "remark-rehype";
 import rehypeStringify from "rehype-stringify";
 import { generateLogoSlide } from "./deck-svg/logo-slide.js";
 import { generateQrCode } from "./deck-svg/qr-code.js";
+import { smartypants } from "smartypants";
 
 const DECK_FILE_PATTERN = /\.deck\.svelte$/;
 const LOGO_CLASS_RE = /^(anu-logo|socy-logo)$/;
@@ -406,6 +407,7 @@ export function deckPreprocessor(): PreprocessorGroup {
           },
         );
 
+        innerHtml = smartypants(innerHtml, "2");
         innerHtml = buildSplitWrapper(images, innerHtml);
 
         const slideAttrs = buildSlideAttrs(slideClass);

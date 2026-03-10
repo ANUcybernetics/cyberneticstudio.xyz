@@ -25,6 +25,7 @@
     "remark-rehype": "^11.1.2",
     "remark-smartypants": "^3.0.2",
     "sharp": "^0.34.5",
+    "smartypants": "^0.2.2",
     "svelte": "^5.53.5",
     "unified": "^11.0.5",
     "unist-util-visit": "^5.1.0",

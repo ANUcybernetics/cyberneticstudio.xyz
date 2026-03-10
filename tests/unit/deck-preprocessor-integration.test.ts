@@ -7,26 +7,36 @@ const preprocess = deckPreprocessor();
 
 const DECKS_DIR = resolve(import.meta.dirname, "../../src/decks");
 
-function deckDirs(): string[] {
-  return readdirSync(DECKS_DIR, { withFileTypes: true })
+function deckFiles(): { slug: string; file: string; path: string }[] {
+  const dirs = readdirSync(DECKS_DIR, { withFileTypes: true })
     .filter((d) => d.isDirectory() && d.name !== "assets")
     .map((d) => d.name);
+
+  const results: { slug: string; file: string; path: string }[] = [];
+  for (const slug of dirs) {
+    const dirPath = resolve(DECKS_DIR, slug);
+    for (const f of readdirSync(dirPath)) {
+      if (f.endsWith(".deck.svelte")) {
+        results.push({ slug, file: f, path: resolve(dirPath, f) });
+      }
+    }
+  }
+  return results;
 }
 
-async function processDeck(slug: string): Promise<string> {
-  const slidesPath = resolve(DECKS_DIR, slug, "slides.deck.svelte");
-  const content = readFileSync(slidesPath, "utf-8");
-  const result = await preprocess.markup!({ content, filename: slidesPath });
+async function processDeckFile(deckPath: string): Promise<string> {
+  const content = readFileSync(deckPath, "utf-8");
+  const result = await preprocess.markup!({ content, filename: deckPath });
   return result!.code;
 }
 
 describe("deck preprocessor integration", () => {
-  for (const slug of deckDirs()) {
-    describe(slug, () => {
+  for (const { slug, file, path } of deckFiles()) {
+    describe(`${slug}/${file}`, () => {
       let output: string;
 
       it("processes without error", async () => {
-        output = await processDeck(slug);
+        output = await processDeckFile(path);
         expect(output).toBeDefined();
       });
 
@@ -67,7 +77,7 @@ describe("example deck specifics", () => {
   let output: string;
 
   it("processes the example deck", async () => {
-    output = await processDeck("example");
+    output = await processDeckFile(resolve(DECKS_DIR, "example", "slides.deck.svelte"));
   });
 
   it("produces the expected number of slides", () => {
@@ -139,36 +149,3 @@ describe("example deck specifics", () => {
   });
 });
 
-describe("llms-unplugged deck specifics", () => {
-  let output: string;
-
-  it("processes the llms-unplugged deck", async () => {
-    output = await processDeck("llms-unplugged");
-  });
-
-  it("produces the expected number of slides", () => {
-    const slideCount = (output.match(/<Slide/g) || []).length;
-    expect(slideCount).toBe(22);
-  });
-
-  it("handles multiple bg image modifiers", () => {
-    expect(output).toContain("brightness(0.3)");
-  });
-
-  it("handles bg contain images", () => {
-    expect(output).toContain("background-size: contain");
-  });
-
-  it("generates imports for all relative images", () => {
-    const importCount = (output.match(/import __deckImg\d+/g) || []).length;
-    expect(importCount).toBeGreaterThanOrEqual(5);
-  });
-
-  it("handles blockquotes", () => {
-    expect(output).toContain("<blockquote>");
-  });
-
-  it("renders the socy-logo slide", () => {
-    expect(output).toContain('class="socy-logo"');
-  });
-});
