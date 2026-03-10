@@ -37,19 +37,45 @@
   });
 
   $effect(() => {
+    if (!canvas || !width || !height) return;
+    const dpr = window.devicePixelRatio || 1;
+    canvas.width = width * dpr;
+    canvas.height = height * dpr;
+  });
+
+  $effect(() => {
     if (!data || !canvas || !width || !height) return;
 
     const phase = reducedMotion ? 0 : time.current;
     const dpr = window.devicePixelRatio || 1;
-
-    canvas.width = width * dpr;
-    canvas.height = height * dpr;
 
     const ctx = canvas.getContext("2d")!;
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     ctx.clearRect(0, 0, width, height);
 
     const omega = (2 * Math.PI) / (data.resolvePeriod * 1000);
+    const maxCoeffs = data.coeffCount;
+
+    const cosOmega = new Float64Array(maxCoeffs);
+    const sinOmega = new Float64Array(maxCoeffs);
+    for (let k = 0; k < maxCoeffs; k++) {
+      const angle = (k + 1) * omega * phase;
+      cosOmega[k] = Math.cos(angle);
+      sinOmega[k] = Math.sin(angle);
+    }
+
+    const baseCos = new Float64Array(SAMPLES + 1);
+    const baseSin = new Float64Array(SAMPLES + 1);
+    const fadeArr = new Float64Array(SAMPLES + 1);
+    for (let s = 0; s <= SAMPLES; s++) {
+      const t = s / SAMPLES;
+      baseCos[s] = Math.cos(2 * Math.PI * t);
+      baseSin[s] = Math.sin(2 * Math.PI * t);
+      if (t < EDGE_FADE) fadeArr[s] = t / EDGE_FADE;
+      else if (t > 1 - EDGE_FADE) fadeArr[s] = (1 - t) / EDGE_FADE;
+      else fadeArr[s] = 1;
+    }
+
     const lineSpacing = height / data.lineCount;
     const maxDisplacement = lineSpacing * DISPLACEMENT_SCALE;
 
@@ -65,26 +91,49 @@
       ctx.strokeStyle = `rgba(230, 255, 68, ${alpha})`;
       ctx.lineWidth = lineWidth;
 
-      const line = data.lines[i];
+      const coeffs = data.lines[i].coeffs;
+
+      const aCos = new Float64Array(coeffs.length);
+      const aSin = new Float64Array(coeffs.length);
+      for (let k = 0; k < coeffs.length; k++) {
+        const { amp, phase: phi } = coeffs[k];
+        const cosPhi = Math.cos(phi);
+        const sinPhi = Math.sin(phi);
+        aCos[k] = amp * (cosPhi * cosOmega[k] - sinPhi * sinOmega[k]);
+        aSin[k] = amp * (sinPhi * cosOmega[k] + cosPhi * sinOmega[k]);
+      }
+
+      let prevCosF = 1;
+      let prevSinF = 0;
 
       for (let s = 0; s <= SAMPLES; s++) {
-        const t = s / SAMPLES;
-        const x = t * width;
+        const x = (s / SAMPLES) * width;
 
-        let fade = 1;
-        if (t < EDGE_FADE) fade = t / EDGE_FADE;
-        else if (t > 1 - EDGE_FADE) fade = (1 - t) / EDGE_FADE;
+        let cosF: number, sinF: number;
+        if (s === 0) {
+          cosF = 1;
+          sinF = 0;
+        } else {
+          cosF = prevCosF * baseCos[1] - prevSinF * baseSin[1];
+          sinF = prevSinF * baseCos[1] + prevCosF * baseSin[1];
+        }
+        prevCosF = cosF;
+        prevSinF = sinF;
 
         let displacement = 0;
-        for (let k = 0; k < line.coeffs.length; k++) {
-          const { amp, phase: phi } = line.coeffs[k];
-          const freq = k + 1;
-          displacement +=
-            amp *
-            Math.cos(2 * Math.PI * freq * t + phi + freq * omega * phase);
+        let cosFk = cosF;
+        let sinFk = sinF;
+        for (let k = 0; k < coeffs.length; k++) {
+          if (k > 0) {
+            const newCos = cosFk * cosF - sinFk * sinF;
+            const newSin = sinFk * cosF + cosFk * sinF;
+            cosFk = newCos;
+            sinFk = newSin;
+          }
+          displacement += aCos[k] * cosFk - aSin[k] * sinFk;
         }
 
-        const y = baseY + displacement * maxDisplacement * fade;
+        const y = baseY + displacement * maxDisplacement * fadeArr[s];
 
         if (s === 0) {
           ctx.moveTo(x, y);
