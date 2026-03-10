@@ -1,5 +1,5 @@
 ---
-title: LLMs Unplugged (2h)
+title: LLMs Unplugged (Fundamentals + Pre-trained Model + Sampling)
 description: A Cybernetic Studio workshop
 ---
 
