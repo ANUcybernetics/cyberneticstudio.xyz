@@ -1,16 +1,15 @@
 <script lang="ts">
-  import { useAnimationTime } from "../lib/animation-time.svelte";
+  import { onFrame } from "../lib/animation-time.svelte";
 
-  interface CoeffData {
-    amp: number;
-    phase: number;
+  interface Coeff {
+    k: number;
+    re: number;
+    im: number;
   }
 
   interface LissajousData {
-    lineCount: number;
-    coeffCount: number;
     resolvePeriod: number;
-    lines: { coeffs: CoeffData[] }[];
+    curves: { coeffs: Coeff[] }[];
   }
 
   let { src }: { src: string } = $props();
@@ -20,11 +19,8 @@
   let height = $state(0);
   let data: LissajousData | null = $state(null);
 
-  const time = useAnimationTime();
-
-  const SAMPLES = 200;
-  const EDGE_FADE = 0.12;
-  const DISPLACEMENT_SCALE = 0.35;
+  const SAMPLES = 400;
+  const MAX_DRIFT = 12;
 
   const reducedMotion =
     typeof window !== "undefined" &&
@@ -44,107 +40,109 @@
   });
 
   $effect(() => {
-    if (!data || !canvas || !width || !height) return;
+    const d = data;
+    const c = canvas;
+    const w = width;
+    const h = height;
+    if (!d || !c || !w || !h) return;
 
-    const phase = reducedMotion ? 0 : time.current;
+    if (reducedMotion) {
+      draw(c, w, h, d, 0);
+      return;
+    }
+
+    return onFrame((time) => draw(c, w, h, d, time));
+  });
+
+  function draw(
+    c: HTMLCanvasElement,
+    w: number,
+    h: number,
+    d: LissajousData,
+    phase: number,
+  ) {
     const dpr = window.devicePixelRatio || 1;
-
-    const ctx = canvas.getContext("2d")!;
+    const ctx = c.getContext("2d")!;
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    ctx.clearRect(0, 0, width, height);
+    ctx.clearRect(0, 0, w, h);
 
-    const omega = (2 * Math.PI) / (data.resolvePeriod * 1000);
-    const maxCoeffs = data.coeffCount;
+    const periodMs = d.resolvePeriod * 1000;
+    const cycleFrac = (phase % periodMs) / periodMs;
+    const s = Math.sin(Math.PI * cycleFrac);
+    const s2 = s * s;
+    const s4 = s2 * s2;
+    const driftAmount = s4 * s4;
 
-    const cosOmega = new Float64Array(maxCoeffs);
-    const sinOmega = new Float64Array(maxCoeffs);
-    for (let k = 0; k < maxCoeffs; k++) {
-      const angle = (k + 1) * omega * phase;
-      cosOmega[k] = Math.cos(angle);
-      sinOmega[k] = Math.sin(angle);
-    }
+    const numCurves = d.curves.length;
 
-    const baseCos = new Float64Array(SAMPLES + 1);
-    const baseSin = new Float64Array(SAMPLES + 1);
-    const fadeArr = new Float64Array(SAMPLES + 1);
-    for (let s = 0; s <= SAMPLES; s++) {
-      const t = s / SAMPLES;
-      baseCos[s] = Math.cos(2 * Math.PI * t);
-      baseSin[s] = Math.sin(2 * Math.PI * t);
-      if (t < EDGE_FADE) fadeArr[s] = t / EDGE_FADE;
-      else if (t > 1 - EDGE_FADE) fadeArr[s] = (1 - t) / EDGE_FADE;
-      else fadeArr[s] = 1;
-    }
-
-    const lineSpacing = height / data.lineCount;
-    const maxDisplacement = lineSpacing * DISPLACEMENT_SCALE;
-
-    for (let i = 0; i < data.lineCount; i++) {
-      const baseY = ((i + 0.5) / data.lineCount) * height;
-      const normalised =
-        (i - (data.lineCount - 1) / 2) / ((data.lineCount - 1) / 2);
-      const distFromCentre = Math.abs(normalised);
-      const alpha = (1 - distFromCentre * 0.8) * 0.7;
-      const lineWidth = 1.5 * (1 - distFromCentre * 0.6);
+    for (let ci = 0; ci < numCurves; ci++) {
+      const curve = d.curves[ci];
+      const alpha = 0.6 * (1 - (ci / numCurves) * 0.5);
+      const lineWidth = 1.2 * (1 - (ci / numCurves) * 0.4);
+      const colorT = (Math.sin(2 * Math.PI * (ci / numCurves + cycleFrac * 1.5)) + 1) / 2;
+      const r = 230 + 25 * colorT;
+      const g = 255;
+      const b = 68 + 187 * colorT;
 
       ctx.beginPath();
-      ctx.strokeStyle = `rgba(230, 255, 68, ${alpha})`;
+      ctx.strokeStyle = `rgba(${r}, ${g}, ${b}, ${alpha})`;
       ctx.lineWidth = lineWidth;
 
-      const coeffs = data.lines[i].coeffs;
+      const coeffs = curve.coeffs;
+      const n = coeffs.length;
 
-      const aCos = new Float64Array(coeffs.length);
-      const aSin = new Float64Array(coeffs.length);
-      for (let k = 0; k < coeffs.length; k++) {
-        const { amp, phase: phi } = coeffs[k];
-        const cosPhi = Math.cos(phi);
-        const sinPhi = Math.sin(phi);
-        aCos[k] = amp * (cosPhi * cosOmega[k] - sinPhi * sinOmega[k]);
-        aSin[k] = amp * (sinPhi * cosOmega[k] + cosPhi * sinOmega[k]);
+      const rotRe = new Float64Array(n);
+      const rotIm = new Float64Array(n);
+      const stepCos = new Float64Array(n);
+      const stepSin = new Float64Array(n);
+
+      for (let j = 0; j < n; j++) {
+        const { k, re, im } = coeffs[j];
+        const timeAngle = k * (k + 1) * MAX_DRIFT * driftAmount;
+        const cosT = Math.cos(timeAngle);
+        const sinT = Math.sin(timeAngle);
+        rotRe[j] = re * cosT - im * sinT;
+        rotIm[j] = im * cosT + re * sinT;
+
+        const stepAngle = (2 * Math.PI * k) / SAMPLES;
+        stepCos[j] = Math.cos(stepAngle);
+        stepSin[j] = Math.sin(stepAngle);
       }
 
-      let prevCosF = 1;
-      let prevSinF = 0;
+      const curCos = new Float64Array(n).fill(1);
+      const curSin = new Float64Array(n).fill(0);
 
       for (let s = 0; s <= SAMPLES; s++) {
-        const x = (s / SAMPLES) * width;
+        let px = 0;
+        let py = 0;
 
-        let cosF: number, sinF: number;
-        if (s === 0) {
-          cosF = 1;
-          sinF = 0;
-        } else {
-          cosF = prevCosF * baseCos[1] - prevSinF * baseSin[1];
-          sinF = prevSinF * baseCos[1] + prevCosF * baseSin[1];
-        }
-        prevCosF = cosF;
-        prevSinF = sinF;
-
-        let displacement = 0;
-        let cosFk = cosF;
-        let sinFk = sinF;
-        for (let k = 0; k < coeffs.length; k++) {
-          if (k > 0) {
-            const newCos = cosFk * cosF - sinFk * sinF;
-            const newSin = sinFk * cosF + cosFk * sinF;
-            cosFk = newCos;
-            sinFk = newSin;
-          }
-          displacement += aCos[k] * cosFk - aSin[k] * sinFk;
+        for (let j = 0; j < n; j++) {
+          px += rotRe[j] * curCos[j] - rotIm[j] * curSin[j];
+          py += rotIm[j] * curCos[j] + rotRe[j] * curSin[j];
         }
 
-        const y = baseY + displacement * maxDisplacement * fadeArr[s];
+        const x = px * w;
+        const y = py * h;
 
         if (s === 0) {
           ctx.moveTo(x, y);
         } else {
           ctx.lineTo(x, y);
         }
+
+        if (s < SAMPLES) {
+          for (let j = 0; j < n; j++) {
+            const newCos = curCos[j] * stepCos[j] - curSin[j] * stepSin[j];
+            const newSin = curSin[j] * stepCos[j] + curCos[j] * stepSin[j];
+            curCos[j] = newCos;
+            curSin[j] = newSin;
+          }
+        }
       }
 
       ctx.stroke();
     }
-  });
+  }
 </script>
 
 <div bind:clientWidth={width} bind:clientHeight={height}>

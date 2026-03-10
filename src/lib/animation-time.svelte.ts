@@ -1,29 +1,24 @@
-let current = $state(0);
-let subscribers = 0;
+type FrameCallback = (time: number) => void;
+
+const callbacks = new Set<FrameCallback>();
 let frameId = 0;
 
 function tick(time: number) {
-  current = time;
-  frameId = requestAnimationFrame(tick);
+  for (const cb of callbacks) cb(time);
+  if (callbacks.size > 0) {
+    frameId = requestAnimationFrame(tick);
+  }
 }
 
-export function useAnimationTime(): { readonly current: number } {
-  $effect(() => {
-    subscribers++;
-    if (subscribers === 1) {
-      frameId = requestAnimationFrame(tick);
+export function onFrame(callback: FrameCallback): () => void {
+  callbacks.add(callback);
+  if (callbacks.size === 1) {
+    frameId = requestAnimationFrame(tick);
+  }
+  return () => {
+    callbacks.delete(callback);
+    if (callbacks.size === 0) {
+      cancelAnimationFrame(frameId);
     }
-    return () => {
-      subscribers--;
-      if (subscribers === 0) {
-        cancelAnimationFrame(frameId);
-      }
-    };
-  });
-
-  return {
-    get current() {
-      return current;
-    },
   };
 }

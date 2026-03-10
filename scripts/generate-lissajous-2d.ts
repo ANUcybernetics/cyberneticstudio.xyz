@@ -1,0 +1,218 @@
+import sharp from "sharp";
+import { writeFileSync } from "node:fs";
+
+const IMAGE_SIZE = 192;
+const BLUR_SIGMA = 1.5;
+const THRESHOLDS = [0.15, 0.3, 0.45, 0.6, 0.75, 0.9];
+const MIN_CONTOUR_POINTS = 20;
+const COEFFS_PER_CURVE = 150;
+const MAX_CURVES = 15;
+const SAMPLES_PER_T = 400;
+
+type Point = [number, number];
+
+const EDGE_TABLE: [number, number][][] = [
+  [],
+  [[3, 2]],
+  [[2, 1]],
+  [[3, 1]],
+  [[1, 0]],
+  [[1, 0], [3, 2]],
+  [[0, 2]],
+  [[3, 0]],
+  [[0, 3]],
+  [[0, 2]],
+  [[0, 1], [2, 3]],
+  [[0, 1]],
+  [[1, 3]],
+  [[1, 2]],
+  [[2, 3]],
+  [],
+];
+
+function edgePoint(
+  edge: number,
+  row: number,
+  col: number,
+  tl: number,
+  tr: number,
+  br: number,
+  bl: number,
+  threshold: number,
+): Point {
+  const clamp = (v: number) => Math.max(0, Math.min(1, v));
+  switch (edge) {
+    case 0: {
+      const t = clamp((threshold - tl) / (tr - tl || 1e-10));
+      return [col + t, row];
+    }
+    case 1: {
+      const t = clamp((threshold - tr) / (br - tr || 1e-10));
+      return [col + 1, row + t];
+    }
+    case 2: {
+      const t = clamp((threshold - bl) / (br - bl || 1e-10));
+      return [col + t, row + 1];
+    }
+    case 3: {
+      const t = clamp((threshold - tl) / (bl - tl || 1e-10));
+      return [col, row + t];
+    }
+    default:
+      return [0, 0];
+  }
+}
+
+function marchingSquares(
+  pixels: Float64Array,
+  w: number,
+  h: number,
+  threshold: number,
+): Point[][] {
+  const segments: [Point, Point][] = [];
+
+  for (let row = 0; row < h - 1; row++) {
+    for (let col = 0; col < w - 1; col++) {
+      const tl = pixels[row * w + col];
+      const tr = pixels[row * w + col + 1];
+      const br = pixels[(row + 1) * w + col + 1];
+      const bl = pixels[(row + 1) * w + col];
+
+      const idx =
+        (tl >= threshold ? 8 : 0) |
+        (tr >= threshold ? 4 : 0) |
+        (br >= threshold ? 2 : 0) |
+        (bl >= threshold ? 1 : 0);
+
+      for (const [e1, e2] of EDGE_TABLE[idx]) {
+        segments.push([
+          edgePoint(e1, row, col, tl, tr, br, bl, threshold),
+          edgePoint(e2, row, col, tl, tr, br, bl, threshold),
+        ]);
+      }
+    }
+  }
+
+  return chainSegments(segments);
+}
+
+function chainSegments(segments: [Point, Point][]): Point[][] {
+  const key = (p: Point) => `${p[0].toFixed(4)},${p[1].toFixed(4)}`;
+  const adj = new Map<string, { point: Point; neighbors: string[] }>();
+
+  for (const [p1, p2] of segments) {
+    const k1 = key(p1);
+    const k2 = key(p2);
+    if (!adj.has(k1)) adj.set(k1, { point: p1, neighbors: [] });
+    if (!adj.has(k2)) adj.set(k2, { point: p2, neighbors: [] });
+    adj.get(k1)!.neighbors.push(k2);
+    adj.get(k2)!.neighbors.push(k1);
+  }
+
+  const visited = new Set<string>();
+  const contours: Point[][] = [];
+
+  for (const [startKey, startNode] of adj) {
+    if (visited.has(startKey)) continue;
+    const contour: Point[] = [];
+    let currentKey = startKey;
+
+    while (!visited.has(currentKey)) {
+      visited.add(currentKey);
+      contour.push(adj.get(currentKey)!.point);
+      const next = adj.get(currentKey)!.neighbors.find((n) => !visited.has(n));
+      if (!next) break;
+      currentKey = next;
+    }
+
+    if (contour.length >= MIN_CONTOUR_POINTS) {
+      contours.push(contour);
+    }
+  }
+
+  return contours;
+}
+
+function complexDFT(
+  points: Point[],
+  maxCoeffs: number,
+): { k: number; re: number; im: number }[] {
+  const N = points.length;
+  const maxK = Math.min(Math.floor(N / 2), maxCoeffs * 2);
+  const raw: { k: number; re: number; im: number; mag: number }[] = [];
+
+  for (let k = -maxK; k <= maxK; k++) {
+    let re = 0;
+    let im = 0;
+    for (let n = 0; n < N; n++) {
+      const angle = (-2 * Math.PI * k * n) / N;
+      const cos = Math.cos(angle);
+      const sin = Math.sin(angle);
+      re += points[n][0] * cos - points[n][1] * sin;
+      im += points[n][0] * sin + points[n][1] * cos;
+    }
+    re /= N;
+    im /= N;
+    raw.push({ k, re, im, mag: Math.sqrt(re * re + im * im) });
+  }
+
+  raw.sort((a, b) => b.mag - a.mag);
+  return raw.slice(0, maxCoeffs).map(({ k, re, im }) => ({
+    k,
+    re: +re.toFixed(6),
+    im: +im.toFixed(6),
+  }));
+}
+
+async function processImage(
+  imagePath: string,
+  outputPath: string,
+): Promise<void> {
+  const { data, info } = await sharp(imagePath)
+    .grayscale()
+    .resize(IMAGE_SIZE, IMAGE_SIZE, { fit: "cover" })
+    .blur(BLUR_SIGMA)
+    .raw()
+    .toBuffer({ resolveWithObject: true });
+
+  const { width, height } = info;
+  const pixels = new Float64Array(width * height);
+  for (let i = 0; i < data.length; i++) {
+    pixels[i] = data[i] / 255;
+  }
+
+  const allContours: Point[][] = [];
+  for (const threshold of THRESHOLDS) {
+    allContours.push(...marchingSquares(pixels, width, height, threshold));
+  }
+
+  allContours.sort((a, b) => b.length - a.length);
+  const selected = allContours.slice(0, MAX_CURVES);
+
+  const curves = selected.map((contour) => {
+    const normalized: Point[] = contour.map(([x, y]) => [x / width, y / height]);
+    const numCoeffs = Math.min(COEFFS_PER_CURVE, Math.floor(contour.length / 2));
+    return { coeffs: complexDFT(normalized, numCoeffs) };
+  });
+
+  const resolvePeriod = 10 + Math.random() * 5;
+  const output = {
+    resolvePeriod: +resolvePeriod.toFixed(2),
+    curves,
+  };
+
+  writeFileSync(outputPath, JSON.stringify(output));
+  console.log(
+    `wrote ${outputPath}: ${curves.length} curves from ${allContours.length} total (${width}x${height})`,
+  );
+}
+
+const [imagePath, outputPath] = process.argv.slice(2);
+if (!imagePath || !outputPath) {
+  console.error(
+    "Usage: npx tsx scripts/generate-lissajous-2d.ts <image> <output.json>",
+  );
+  process.exit(1);
+}
+
+await processImage(imagePath, outputPath);
