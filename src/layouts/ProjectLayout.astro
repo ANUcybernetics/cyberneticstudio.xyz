@@ -3,20 +3,44 @@ import { Image } from "astro:assets";
 import BaseLayout from "./BaseLayout.astro";
 import LissajousImage from "../components/LissajousImage.svelte";
 
+interface Publication {
+  title: string;
+  venue: string;
+  date: string;
+  url?: string;
+}
+
 interface Props {
   title: string;
   description: string;
+  creators: string[];
+  materials?: string;
   date: string;
   hero?: ImageMetadata;
   heroAlt?: string;
   slug?: string;
+  github?: string;
+  publications: Publication[];
+  relatedProjects: { slug: string; title: string }[];
 }
 
-const { title, description, date, hero, heroAlt, slug } = Astro.props;
+const {
+  title,
+  description,
+  creators,
+  materials,
+  date,
+  hero,
+  heroAlt,
+  slug,
+  github,
+  publications,
+  relatedProjects,
+} = Astro.props;
+
 const formattedDate = new Date(date).toLocaleDateString("en-AU", {
   year: "numeric",
   month: "long",
-  day: "numeric",
 });
 ---
 
@@ -29,9 +53,56 @@ const formattedDate = new Date(date).toLocaleDateString("en-AU", {
     )}
     <header class="project-header">
       <h1 class="glow-strong">{title}</h1>
-      <p class="project-meta">
-        <time datetime={date}>{formattedDate}</time>
-      </p>
+      <dl class="project-meta">
+        {creators.length > 0 && (
+          <>
+            <dt>Creators</dt>
+            <dd>{creators.join(", ")}</dd>
+          </>
+        )}
+        {materials && (
+          <>
+            <dt>Materials</dt>
+            <dd>{materials}</dd>
+          </>
+        )}
+        <dt>Launched</dt>
+        <dd><time datetime={date}>{formattedDate}</time></dd>
+        {github && (
+          <>
+            <dt>Source</dt>
+            <dd><a href={github}>GitHub</a></dd>
+          </>
+        )}
+        {publications.length > 0 && (
+          <>
+            <dt>Publications</dt>
+            <dd>
+              <ul class="publication-list">
+                {publications.map((pub) => (
+                  <li>
+                    {pub.url ? <a href={pub.url}>{pub.title}</a> : pub.title}
+                    <span class="pub-venue">{pub.venue}, {pub.date}</span>
+                  </li>
+                ))}
+              </ul>
+            </dd>
+          </>
+        )}
+        {relatedProjects.length > 0 && (
+          <>
+            <dt>Related</dt>
+            <dd>
+              {relatedProjects.map((p, i) => (
+                <>
+                  {i > 0 && ", "}
+                  <a href={`/projects/${p.slug}/`}>{p.title}</a>
+                </>
+              ))}
+            </dd>
+          </>
+        )}
+      </dl>
     </header>
     <div class="project-content">
       {hero && (
@@ -70,8 +141,39 @@ const formattedDate = new Date(date).toLocaleDateString("en-AU", {
   }
 
   .project-meta {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: var(--space-xs) var(--space-lg);
+    margin-top: var(--space-md);
+    font-size: 0.9375rem;
+  }
+
+  .project-meta dt {
     color: var(--color-fg-muted);
-    margin-top: var(--space-sm);
+  }
+
+  .project-meta dd {
+    margin: 0;
+  }
+
+  .project-meta a {
+    color: var(--color-accent);
+  }
+
+  .publication-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .publication-list li + li {
+    margin-top: var(--space-xs);
+  }
+
+  .pub-venue {
+    display: block;
+    color: var(--color-fg-muted);
+    font-size: 0.875rem;
   }
 
   .project-content {

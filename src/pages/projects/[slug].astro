@@ -8,21 +8,33 @@ export async function getStaticPaths() {
     .filter((p) => p.data.layout !== "standalone")
     .map((project) => ({
       params: { slug: project.id },
-      props: { project },
+      props: { project, allProjects: projects },
     }));
 }
 
-const { project } = Astro.props;
+const { project, allProjects } = Astro.props;
 const { Content } = await render(project);
+
+const relatedProjects = project.data.relatedProjects
+  .map((slug) => {
+    const related = allProjects.find((p) => p.id === slug);
+    return related ? { slug: related.id, title: related.data.title } : null;
+  })
+  .filter((p): p is { slug: string; title: string } => p !== null);
 ---
 
 <ProjectLayout
   title={project.data.title}
   description={project.data.description}
+  creators={project.data.creators}
+  materials={project.data.materials}
   date={project.data.date.toISOString()}
   hero={project.data.hero}
   heroAlt={project.data.heroAlt}
   slug={project.id}
+  github={project.data.github}
+  publications={project.data.publications}
+  relatedProjects={relatedProjects}
 >
   <Content />
 </ProjectLayout>
