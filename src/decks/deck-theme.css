@@ -189,7 +189,7 @@ body.reveal-viewport {
     :is(p, li) { font-size: 5rem; line-height: 1.4; }
     strong, em { color: var(--anu-dark-grey); }
     code { background: var(--anu-dark-grey); color: var(--anu-white); border-color: var(--anu-dark-grey); }
-    a { color: var(--anu-white); }
+    a { color: var(--anu-dark-grey); }
   }
 
   /* quote: blockquote overlay on bg image */
