@@ -234,4 +234,4 @@ Our trained model grid from earlier:
 
 ---
 
-<!-- _class: anu-logo -->
+<!-- _class: socy-logo -->
