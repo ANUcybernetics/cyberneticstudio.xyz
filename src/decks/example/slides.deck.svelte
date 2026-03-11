@@ -99,7 +99,36 @@ Content is vertically and horizontally centred.
   let cy = tween(150);
   let r = tween(20);
   let fill = tween(GOLD);
+
+  let codeRef: ReturnType<typeof Code>;
 </script>
+
+<h2>Animated code</h2>
+
+<Code
+  bind:this={codeRef}
+  lang="javascript"
+  theme="poimandres"
+  code={`function greet(name) {\n  return "hello, " + name\n}`}
+/>
+
+<Action do={() => codeRef.update`function greet(name) {\n  return \`hello, \${name}!\`\n}`}>
+  Template literal
+</Action>
+
+<Action do={() => codeRef.selectLines`2`}>
+  Highlight return
+</Action>
+
+<Action do={() => codeRef.selectToken`greet`}>
+  Highlight function name
+</Action>
+
+<Action do={() => codeRef.selectLines`*`}>
+  Clear selection
+</Action>
+
+---
 
 <h2>Animated SVG</h2>
 
