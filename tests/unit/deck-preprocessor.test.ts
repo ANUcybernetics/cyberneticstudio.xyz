@@ -3,7 +3,8 @@ import type { RootContent } from "mdast";
 import { unified } from "unified";
 import remarkParse from "remark-parse";
 import remarkGfm from "remark-gfm";
-import { deckPreprocessor, extractBgImagesFromAst, replaceQrImagesInAst } from "../../src/lib/deck-preprocessor";
+import { deckPreprocessor } from "astromotion";
+import { extractBgImagesFromAst, replaceQrImagesInAst } from "astromotion/src/preprocessor.ts";
 
 const parser = unified().use(remarkParse).use(remarkGfm);
 function parseNodes(md: string): RootContent[] {

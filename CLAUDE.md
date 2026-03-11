@@ -19,17 +19,15 @@ All commands via `mise exec -- npm run <script>`:
 
 ## Decks (slide presentations)
 
-Markdown-authored slide decks using animotion (Svelte + Reveal.js + Tailwind). Full-viewport, not listed in navigation --- accessed by direct URL only.
+Markdown-authored slide decks powered by the `astromotion` package (`github:benswift/astromotion`) --- Astro + Svelte + Animotion (Reveal.js) + Marp-inspired syntax. Full-viewport, not listed in navigation --- accessed by direct URL only.
 
 ### File structure
 
 - slides: `src/decks/<slug>/<name>.deck.svelte` --- `slides.deck.svelte` maps to the folder root URL (`/decks/<slug>/`), other names become sub-paths (`/decks/<slug>/<name>/`)
-- Astro page: `src/pages/decks/[...slug]/index.astro` (catch-all route, uses `DeckLayout` + `DeckLoader` with `client:only="svelte"`)
-- loader: `src/components/DeckLoader.svelte` (dynamic import via `import.meta.glob`, takes `deckPath` prop)
-- shared assets: `src/decks/assets/` (logos, shared bg images across decks)
-- theme: `src/decks/deck-theme.css` (ANU gold/copper palette, Public Sans via Google Fonts, root font-size 12px for 1280x720 fixed layout)
-- preprocessor: `src/lib/deck-preprocessor.ts` (registered in `astro.config.mjs`)
-- SvelteKit shim: `src/lib/sveltekit-shims/environment.js` (mocks `$app/environment` for animotion's Transition component)
+- shared assets: `src/decks/assets/` (shared bg images across decks)
+- listing page: `src/pages/decks/index.astro` (uses site's `BaseLayout`)
+- route page: injected by `astromotion` integration (catch-all `/decks/[...slug]`)
+- theme, preprocessor, loader, layout, shims: all provided by `astromotion` package
 
 ### Authoring
 
@@ -50,6 +48,6 @@ Upstream animotion documentation: https://animotion.pages.dev/llms.txt
 
 ### Layout notes
 
-- `DeckHead.astro` is identical to `BaseHead.astro` but without `<ClientRouter />` (would conflict with Reveal.js keyboard navigation)
-- `DeckLayout.astro` imports `deck-theme.css` instead of `global.css` (decks are visually independent)
+- deck pages use `DeckLayout` + `DeckHead` from `astromotion` (no `<ClientRouter />` --- would conflict with Reveal.js keyboard navigation)
+- decks import their own theme CSS (visually independent from site's `global.css`)
 - `@tailwindcss/vite` in `astro.config.mjs` only processes CSS files containing `@import "tailwindcss"` --- rest of site unaffected

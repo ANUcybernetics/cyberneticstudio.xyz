@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { readFileSync, readdirSync } from "node:fs";
 import { resolve } from "node:path";
-import { deckPreprocessor } from "../../src/lib/deck-preprocessor";
+import { deckPreprocessor } from "astromotion";
 
 const preprocess = deckPreprocessor();
 

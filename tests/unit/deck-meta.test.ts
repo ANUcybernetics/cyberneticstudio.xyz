@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { parseDeckFrontmatter } from "../../src/lib/deck-meta";
+import { parseDeckFrontmatter } from "astromotion";
 
 describe("parseDeckFrontmatter", () => {
   it("extracts title and description from frontmatter", () => {
