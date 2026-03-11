@@ -1,9 +1,10 @@
 ---
 id: TASK-17
 title: Unify fundamentals slides between LLMs Unplugged decks
-status: To Do
+status: Done
 assignee: []
 created_date: '2026-03-10 10:06'
+updated_date: '2026-03-11 02:07'
 labels:
   - decks
   - llms-unplugged
@@ -35,7 +36,13 @@ The `fundamentals.deck.svelte` and `fundamentals-pre-trained-model-sampling.deck
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 The training and generation slides are byte-for-byte identical between both decks (aside from the frontmatter title)
-- [ ] #2 The longer deck's extra sections (pre-trained model, sampling) come after the shared fundamentals content
-- [ ] #3 Both decks build and render correctly
+- [x] #1 The training and generation slides are byte-for-byte identical between both decks (aside from the frontmatter title)
+- [x] #2 The longer deck's extra sections (pre-trained model, sampling) come after the shared fundamentals content
+- [x] #3 Both decks build and render correctly
 <!-- AC:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+Unified the shared fundamentals slides between `fundamentals.deck.svelte` and `fundamentals-pre-trained-model-sampling.deck.svelte`. The shared portion (icebreaker through the "pre-training/foundation model" language slide) is now byte-for-byte identical. Resolved divergences per agreed choices: banner+full-bleed title slide, "Training"/"Generation"/"Pre-trained generation" headings, QR codes instead of inline tables/images, Eddie/Ben/Cole headshot order, Shannon slide with `bg cover left:60%`, and banner-style shareback slides. Build passes.
+<!-- SECTION:FINAL_SUMMARY:END -->

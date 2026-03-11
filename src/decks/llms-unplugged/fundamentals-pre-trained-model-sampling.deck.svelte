@@ -14,11 +14,13 @@ introduce yourself to your neighbor(s) and ask them:
 
 ---
 
+<!-- _class: banner -->
+
 # LLMs Unplugged
 
 Understand AI by building it yourself
 
-![bg right:40%](../assets/bg-title.avif)
+![bg](../assets/bg-title.avif)
 
 ---
 

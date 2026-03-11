@@ -31,8 +31,8 @@ Understand AI by building it yourself
 ---
 
 <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; position: absolute; inset: 0;">
-  <img src="../assets/headshot-ben-anu.avif" style="width: 100%; height: 100%; object-fit: cover;" alt="Ben">
   <img src="../assets/headshot-eddie-anu.avif" style="width: 100%; height: 100%; object-fit: cover;" alt="Eddie">
+  <img src="../assets/headshot-ben-anu.avif" style="width: 100%; height: 100%; object-fit: cover;" alt="Ben">
   <img src="../assets/headshot-cole-anu.avif" style="width: 100%; height: 100%; object-fit: cover;" alt="Cole">
 </div>
 
@@ -104,30 +104,31 @@ by exploiting patterns in text to generate new text
 
 ---
 
+<!-- _class: centered -->
+
+![qr](https://www.llmsunplugged.org)
+
+---
+
 <!-- _class: banner -->
 
-# Basic training
+# Training
 
 ![bg brightness:0.5](../assets/bg-div-mechanic.avif)
 
 ---
 
-**Original text**: _"See Spot run. See Spot jump. Run, Spot, run. Jump, Spot,
-jump."_
+<!-- _class: centered -->
 
-**Preprocessed text**: `see` `spot` `run` `.` `see` `spot` `jump` `.` `run` `,`
-`spot` `,` `run` `.` `jump` `,` `spot` `,` `jump` `.`
+![qr](https://www.llmsunplugged.org/lessons/training)
 
-**After training** the model should look like:
+---
 
-|        | `see` | `spot` | `run` | `.` | `jump` | `,` |
-| ------ | ----- | ------ | ----- | --- | ------ | --- |
-| `see`  |       | II     |       |     |        |     |
-| `spot` |       |        | I     |     | I      | II  |
-| `run`  |       |        |       | II  |        | I   |
-| `.`    | I     |        | I     |     | I      |     |
-| `jump` |       |        |       | II  |        | I   |
-| `,`    |       | II     | I     |     | I      |     |
+<!-- _class: banner -->
+
+# Training
+
+![bg brightness:0.5](../assets/bg-div-mechanic.avif)
 
 ---
 
@@ -144,22 +145,23 @@ jump."_
 
 <!-- _class: banner -->
 
-# Basic inference
+# Generation
 
 ![bg brightness:0.5](../assets/bg-div-lessons.avif)
 
 ---
 
-Our trained model grid from earlier:
+<!-- _class: centered -->
 
-|        | `see` | `spot` | `run` | `.` | `jump` | `,` |
-| ------ | ----- | ------ | ----- | --- | ------ | --- |
-| `see`  |       | II     |       |     |        |     |
-| `spot` |       |        | I     |     | I      | II  |
-| `run`  |       |        |       | II  |        | I   |
-| `.`    | I     |        | I     |     | I      |     |
-| `jump` |       |        |       | II  |        | I   |
-| `,`    |       | II     | I     |     | I      |     |
+![qr](https://www.llmsunplugged.org/lessons/generation)
+
+---
+
+<!-- _class: banner -->
+
+# Generation
+
+![bg brightness:0.5](../assets/bg-div-lessons.avif)
 
 ---
 
@@ -173,26 +175,33 @@ Our trained model grid from earlier:
 
 ## The _language_ of language models
 
-![bg cover right:60%](../assets/bg-shannon.avif)
+![bg cover left:60%](../assets/bg-shannon.avif)
 
 - prompt
 - completion/response/prediction
 - context window
-- sampling
 
 ---
 
 <!-- _class: banner -->
 
-# Pre-trained bigram model
+# Pre-trained generation
 
 ![bg brightness:0.3](../assets/bg-div-historical.avif)
 
 ---
 
-<div style="display: grid; place-items: center; height: 100%;">
-  <img src="../assets/bigram-booklet-excerpt.png" style="width: 90%;" alt="Bigram booklet excerpt">
-</div>
+<!-- _class: centered -->
+
+![qr](https://www.llmsunplugged.org/lessons/pretrained-generation)
+
+---
+
+<!-- _class: banner -->
+
+# Pre-trained generation
+
+![bg brightness:0.3](../assets/bg-div-historical.avif)
 
 ---
 
