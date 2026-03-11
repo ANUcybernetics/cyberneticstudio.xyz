@@ -82,7 +82,7 @@ describe("example deck specifics", () => {
 
   it("produces the expected number of slides", () => {
     const slideCount = (output.match(/<Slide/g) || []).length;
-    expect(slideCount).toBe(12);
+    expect(slideCount).toBe(13);
   });
 
   it("renders markdown content as HTML", () => {
@@ -141,11 +141,11 @@ describe("example deck specifics", () => {
 
   it("passes through animotion Action component", () => {
     expect(output).toContain("<Action");
-    expect(output).toContain("<button>Increment</button>");
+    expect(output).toContain("Template literal");
   });
 
   it("preserves user script content", () => {
-    expect(output).toContain("let count = $state(0)");
+    expect(output).toContain('let cx = tween(100)');
   });
 });
 
