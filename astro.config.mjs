@@ -9,7 +9,7 @@ export default defineConfig({
   site: "https://cyberneticstudio.xyz",
   integrations: [
     svelte({ preprocess: [deckPreprocessor()] }),
-    astromotion(),
+    astromotion({ theme: "./src/decks/theme.css" }),
   ],
   vite: {
     plugins: [tailwindcss()],
