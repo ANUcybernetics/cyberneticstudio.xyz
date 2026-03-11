@@ -20,8 +20,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: jdx/mise-action@v2
-      - run: npm ci
-      - run: npm run lint
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm run lint
 
   build:
     needs: lint-and-test
@@ -32,6 +32,7 @@ jobs:
       - uses: withastro/action@v3
         with:
           node-version: 24
+          package-manager: pnpm@10
 
   deploy:
     needs: build
