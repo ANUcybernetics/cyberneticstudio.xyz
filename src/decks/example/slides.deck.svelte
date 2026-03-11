@@ -107,12 +107,12 @@ Content is vertically and horizontally centred.
 
 <Code
   bind:this={codeRef}
-  lang="javascript"
+  lang="typescript"
   theme="poimandres"
-  code={`function greet(name) {\n  return "hello, " + name\n}`}
+  code={`function greet(name: string) {\n  return "hello, " + name\n}`}
 />
 
-<Action do={() => codeRef.update`function greet(name) {\n  return \`hello, \${name}!\`\n}`}>
+<Action do={() => codeRef.update`function greet(name: string) {\n  return \`hello, \${name}!\`\n}`}>
   Template literal
 </Action>
 
