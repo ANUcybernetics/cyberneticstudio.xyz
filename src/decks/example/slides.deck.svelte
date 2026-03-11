@@ -89,11 +89,36 @@ Content is vertically and horizontally centred.
 ---
 
 <script lang="ts">
-  let count = $state(0);
+  import { tween } from "@animotion/motion";
+
+  const GOLD = "#be830e";
+  const TEAL = "#0085ad";
+  const COPPER = "#be4e0e";
+
+  let cx = tween(100);
+  let cy = tween(150);
+  let r = tween(20);
+  let fill = tween(GOLD);
 </script>
 
-<h2>Interactive slide</h2>
-<p>Counter: {count}</p>
-<Action do={() => count++}>
-  <button>Increment</button>
+<h2>Animated SVG</h2>
+
+<svg viewBox="0 0 600 300" style="width: 100%; max-height: 50vh;">
+  <circle cx={cx.current} cy={cy.current} r={r.current} fill={fill.current} />
+</svg>
+
+<Action do={() => cx.to(300)}>
+  Move
+</Action>
+
+<Action do={() => r.to(60)}>
+  Grow
+</Action>
+
+<Action do={() => fill.to(TEAL)}>
+  Recolour
+</Action>
+
+<Action do={() => cx.to(500).then(() => fill.to(COPPER))}>
+  Slide &amp; shift
 </Action>
