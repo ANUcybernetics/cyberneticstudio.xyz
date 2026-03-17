@@ -5,7 +5,7 @@ description: A Cybernetic Studio workshop
 
 ## Icebreaker
 
-![bg left:40%](../assets/hero-news-2026-02-13-brimbank-tech-school-workshop.avif)
+![bg left:40%](./assets/hero-news-2026-02-13-brimbank-tech-school-workshop.avif)
 
 introduce yourself to your neighbor(s) and ask them:
 
@@ -20,20 +20,20 @@ introduce yourself to your neighbor(s) and ask them:
 
 Understand AI by building it yourself
 
-![bg](../assets/bg-title.avif)
+![bg](./assets/bg-title.avif)
 
 ---
 
 ## Acknowledgement of Country
 
-![bg right:40%](../assets/bg-acknowledgement.avif)
+![bg right:40%](./assets/bg-acknowledgement.avif)
 
 ---
 
 <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; position: absolute; inset: 0;">
-  <img src="../assets/headshot-eddie-anu.avif" style="width: 100%; height: 100%; object-fit: cover;" alt="Eddie">
-  <img src="../assets/headshot-ben-anu.avif" style="width: 100%; height: 100%; object-fit: cover;" alt="Ben">
-  <img src="../assets/headshot-cole-anu.avif" style="width: 100%; height: 100%; object-fit: cover;" alt="Cole">
+  <img src="./assets/headshot-eddie-anu.avif" style="width: 100%; height: 100%; object-fit: cover;" alt="Eddie">
+  <img src="./assets/headshot-ben-anu.avif" style="width: 100%; height: 100%; object-fit: cover;" alt="Ben">
+  <img src="./assets/headshot-cole-anu.avif" style="width: 100%; height: 100%; object-fit: cover;" alt="Cole">
 </div>
 
 ---
@@ -96,7 +96,7 @@ haven't used it in the last **5 minutes**
 
 ## What is this about?
 
-![bg right:40%](../assets/bg-core-insight.avif)
+![bg right:40%](./assets/bg-core-insight.avif)
 
 how **language models** work
 
@@ -114,7 +114,7 @@ by exploiting patterns in text to generate new text
 
 # Training
 
-![bg brightness:0.5](../assets/bg-div-mechanic.avif)
+![bg brightness:0.5](./assets/bg-div-mechanic.avif)
 
 ---
 
@@ -128,13 +128,13 @@ by exploiting patterns in text to generate new text
 
 # Training
 
-![bg brightness:0.5](../assets/bg-div-mechanic.avif)
+![bg brightness:0.5](./assets/bg-div-mechanic.avif)
 
 ---
 
 ## The _language_ of language models
 
-![bg right:60%](../assets/bg-markov.avif)
+![bg right:60%](./assets/bg-markov.avif)
 
 - model
 - token
@@ -147,7 +147,7 @@ by exploiting patterns in text to generate new text
 
 # Generation
 
-![bg brightness:0.5](../assets/bg-div-lessons.avif)
+![bg brightness:0.5](./assets/bg-div-lessons.avif)
 
 ---
 
@@ -161,7 +161,7 @@ by exploiting patterns in text to generate new text
 
 # Generation
 
-![bg brightness:0.5](../assets/bg-div-lessons.avif)
+![bg brightness:0.5](./assets/bg-div-lessons.avif)
 
 ---
 
@@ -169,13 +169,13 @@ by exploiting patterns in text to generate new text
 
 # Shareback
 
-![bg brightness:0.5](../assets/bg-div-reception.avif)
+![bg brightness:0.5](./assets/bg-div-reception.avif)
 
 ---
 
 ## The _language_ of language models
 
-![bg cover left:60%](../assets/bg-shannon.avif)
+![bg cover left:60%](./assets/bg-shannon.avif)
 
 - prompt
 - completion/response/prediction
@@ -187,7 +187,7 @@ by exploiting patterns in text to generate new text
 
 # Pre-trained generation
 
-![bg brightness:0.3](../assets/bg-div-historical.avif)
+![bg brightness:0.3](./assets/bg-div-historical.avif)
 
 ---
 
@@ -201,7 +201,7 @@ by exploiting patterns in text to generate new text
 
 # Pre-trained generation
 
-![bg brightness:0.3](../assets/bg-div-historical.avif)
+![bg brightness:0.3](./assets/bg-div-historical.avif)
 
 ---
 
@@ -209,13 +209,13 @@ by exploiting patterns in text to generate new text
 
 # Shareback
 
-![bg brightness:0.5](../assets/bg-div-reception.avif)
+![bg brightness:0.5](./assets/bg-div-reception.avif)
 
 ---
 
 ## The _language_ of language models
 
-![bg right:60%](../assets/bg-design-goals.avif)
+![bg right:60%](./assets/bg-design-goals.avif)
 
 - pre-training
 - foundation model
@@ -226,7 +226,7 @@ by exploiting patterns in text to generate new text
 
 # Sampling
 
-![bg brightness:0.3](../assets/bg-div-resources.avif)
+![bg brightness:0.3](./assets/bg-div-resources.avif)
 
 ---
 
@@ -253,7 +253,7 @@ Generate text using your model, but
 
 # Sampling
 
-![bg brightness:0.3](../assets/bg-div-resources.avif)
+![bg brightness:0.3](./assets/bg-div-resources.avif)
 
 ---
 
@@ -261,13 +261,13 @@ Generate text using your model, but
 
 # Shareback
 
-![bg brightness:0.5](../assets/bg-div-reception.avif)
+![bg brightness:0.5](./assets/bg-div-reception.avif)
 
 ---
 
 ## The _language_ of language models
 
-![bg cover left:60%](../assets/bg-randomness.avif)
+![bg cover left:60%](./assets/bg-randomness.avif)
 
 - sampling
 - truncation (top-k)
@@ -279,7 +279,7 @@ Generate text using your model, but
 
 # So what?
 
-![bg brightness:0.2](../assets/bg-div-quote.avif)
+![bg brightness:0.2](./assets/bg-div-quote.avif)
 
 ---
 
@@ -295,7 +295,7 @@ Generate text using your model, but
 
 # Q&A
 
-![bg right:60%](../assets/bg-participants.avif)
+![bg right:60%](./assets/bg-participants.avif)
 
 [ben.swift@anu.edu.au](mailto:ben.swift@anu.edu.au)
 

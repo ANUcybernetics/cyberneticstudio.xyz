@@ -13,7 +13,7 @@ function parseNodes(md: string): RootContent[] {
 
 const preprocess = deckPreprocessor();
 
-async function process(content: string, filename = "/project/src/decks/test/slides.deck.svelte") {
+async function process(content: string, filename = "/project/src/decks/test/slides.deck.svx") {
   const result = await preprocess.markup!({ content, filename });
   return result?.code;
 }

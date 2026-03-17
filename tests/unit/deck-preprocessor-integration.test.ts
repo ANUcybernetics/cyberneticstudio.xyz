@@ -16,9 +16,14 @@ function deckFiles(): { slug: string; file: string; path: string }[] {
   for (const slug of dirs) {
     const dirPath = resolve(DECKS_DIR, slug);
     for (const f of readdirSync(dirPath)) {
-      if (f.endsWith(".deck.svelte")) {
+      if (f.endsWith(".deck.svx")) {
         results.push({ slug, file: f, path: resolve(dirPath, f) });
       }
+    }
+  }
+  for (const f of readdirSync(DECKS_DIR)) {
+    if (f.endsWith(".deck.svx")) {
+      results.push({ slug: f.replace(/\.deck\.svx$/, ""), file: f, path: resolve(DECKS_DIR, f) });
     }
   }
   return results;

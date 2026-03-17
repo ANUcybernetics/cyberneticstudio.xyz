@@ -23,7 +23,7 @@ Markdown-authored slide decks powered by the `astromotion` package (`github:bens
 
 ### File structure
 
-- slides: `src/decks/<slug>/<name>.deck.svelte` --- `slides.deck.svelte` maps to the folder root URL (`/decks/<slug>/`), other names become sub-paths (`/decks/<slug>/<name>/`)
+- slides: `src/decks/<name>.deck.svx` --- top-level deck files where `<name>` is the slug (URL: `/decks/<name>/`)
 - shared assets: `src/decks/assets/` (shared bg images across decks)
 - listing page: `src/pages/decks/index.astro` (uses site's `BaseLayout`)
 - route page: injected by `astromotion` integration (catch-all `/decks/[...slug]`)
@@ -31,11 +31,11 @@ Markdown-authored slide decks powered by the `astromotion` package (`github:bens
 
 ### Authoring
 
-Slides are `.deck.svelte` files in `src/decks/` that get preprocessed: markdown content is converted to HTML and wrapped in `<Presentation><Slide>` components. Separate slides with `\n---\n`.
+Slides are `.deck.svx` files in `src/decks/` that get preprocessed: markdown content is converted to HTML and wrapped in `<Presentation><Slide>` components. Separate slides with `\n---\n`.
 
 - `<!-- _class: impact -->` --- set slide CSS class (available: `impact`, `banner`, `quote`, `centered`)
 - `<!-- notes: Speaker notes here -->` --- presenter notes
-- `![bg](url)` --- full-bleed background image (also `contain`, `cover`). Relative paths (including in raw `<img>` tags) resolve via Vite imports: `./assets/photo.jpg` for deck-local images, `../assets/photo.jpg` for shared images in `src/decks/assets/`; absolute paths (`/images/...`) reference `public/`
+- `![bg](url)` --- full-bleed background image (also `contain`, `cover`). Relative paths (including in raw `<img>` tags) resolve via Vite imports: `./assets/photo.jpg` for shared images in `src/decks/assets/`; absolute paths (`/images/...`) reference `public/`
 - `![bg left:50%](url)` / `![bg right:40%](url)` --- split layout with image
 - `![bg blur:5px brightness:0.7](url)` --- CSS filters on background
 - sections containing animotion components (`<Action>`, `<Code>`, `<Transition>`) skip markdown processing and pass through as raw Svelte

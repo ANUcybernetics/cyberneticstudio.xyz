@@ -8,7 +8,7 @@ import { astromotion, deckPreprocessor } from "astromotion";
 export default defineConfig({
   site: "https://cyberneticstudio.xyz",
   integrations: [
-    svelte({ preprocess: [deckPreprocessor()] }),
+    svelte({ extensions: [".svelte", ".svx"], preprocess: [deckPreprocessor()] }),
     astromotion({ theme: "./src/decks/theme.css" }),
   ],
   vite: {

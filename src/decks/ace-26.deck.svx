@@ -7,13 +7,13 @@ description: Teaching Resources for a ChatGPT World
 
 Teaching Resources for a ChatGPT World
 
-![bg right:40%](../assets/bg-title.avif)
+![bg right:40%](./assets/bg-title.avif)
 
 ---
 
 ## Acknowledgement of Country
 
-![bg right:40%](../assets/bg-acknowledgement.avif)
+![bg right:40%](./assets/bg-acknowledgement.avif)
 
 ---
 
@@ -27,21 +27,21 @@ they're _A Thing_ now
 
 ## Hi, I'm Ben
 
-![bg right:40%](../assets/headshot-ben-anu.avif)
+![bg right:40%](./assets/headshot-ben-anu.avif)
 
 ---
 
 <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; position: absolute; inset: 0;">
-  <img src="../assets/bg-3up-phd.avif" style="width: 100%; height: 100%; object-fit: cover;" alt="PhD">
-  <img src="../assets/bg-3up-lecturer.avif" style="width: 100%; height: 100%; object-fit: cover;" alt="Lecturer">
-  <img src="../assets/bg-3up-kids.avif" style="width: 100%; height: 100%; object-fit: cover;" alt="Kids">
+  <img src="./assets/bg-3up-phd.avif" style="width: 100%; height: 100%; object-fit: cover;" alt="PhD">
+  <img src="./assets/bg-3up-lecturer.avif" style="width: 100%; height: 100%; object-fit: cover;" alt="Lecturer">
+  <img src="./assets/bg-3up-kids.avif" style="width: 100%; height: 100%; object-fit: cover;" alt="Kids">
 </div>
 
 ---
 
 ## The problem
 
-![bg right:40%](../assets/bg-problem.avif)
+![bg right:40%](./assets/bg-problem.avif)
 
 everyone uses ChatGPT (classrooms, office work, group chats)
 
@@ -53,7 +53,7 @@ most folks don't have a good mental model of how it works...
 
 ## The gap
 
-![bg right:40%](../assets/bg-gap.avif)
+![bg right:40%](./assets/bg-gap.avif)
 
 some feel this "don't know how it works" anxiety more than others, e.g.
 classroom teachers
@@ -69,7 +69,7 @@ years
 
 ## What would "LLMs Unplugged" look like?
 
-![bg right:40%](../assets/bg-design-goals.avif)
+![bg right:40%](./assets/bg-design-goals.avif)
 
 - end-to-end generation (training → generation)
 - modular and low-friction
@@ -87,13 +87,13 @@ years
 
 # Historical roots
 
-![bg brightness:0.2](../assets/bg-div-historical.avif)
+![bg brightness:0.2](./assets/bg-div-historical.avif)
 
 ---
 
 ## Markov (1913) and Shannon (1948)
 
-![bg right:60%](../assets/bg-markov.avif)
+![bg right:60%](./assets/bg-markov.avif)
 
 did this work **by hand**
 
@@ -105,7 +105,7 @@ generating synthetic text through weighted sampling (Shannon)
 
 ## The core insight
 
-![bg right:40%](../assets/bg-core-insight.avif)
+![bg right:40%](./assets/bg-core-insight.avif)
 
 language models work by
 
@@ -120,7 +120,7 @@ modern LLMs: same approach, vastly greater scale
 
 # The core mechanic
 
-![bg brightness:0.2](../assets/bg-div-mechanic.avif)
+![bg brightness:0.2](./assets/bg-div-mechanic.avif)
 
 ---
 
@@ -150,7 +150,7 @@ the grid **is** the model
 
 # Demo time
 
-![bg brightness:0.3](../assets/bg-div-demo.avif)
+![bg brightness:0.3](./assets/bg-div-demo.avif)
 
 ---
 
@@ -168,7 +168,7 @@ the grid **is** the model
 
 ## Why this works
 
-![bg right:40%](../assets/bg-randomness.avif)
+![bg right:40%](./assets/bg-randomness.avif)
 
 - the randomness explains why LLMs give different responses to the same prompt
 - the weighting explains why output is usually coherent
@@ -180,13 +180,13 @@ the grid **is** the model
 
 # Lesson structure
 
-![bg brightness:0.2](../assets/bg-div-lessons.avif)
+![bg brightness:0.2](./assets/bg-div-lessons.avif)
 
 ---
 
 ## Fundamentals
 
-![bg right:40%](../assets/bg-fundamentals.avif)
+![bg right:40%](./assets/bg-fundamentals.avif)
 
 two core lessons (do in order):
 
@@ -203,43 +203,43 @@ about 30mins each (but flexible)
 
 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.7em;">
   <div style="display: flex; align-items: center; gap: 0.6em;">
-    <img src="../assets/cards/hero-pretrained-generation.avif" style="height: 5.5em; border-radius: 6px;" alt="Pre-trained Generation">
+    <img src="./assets/cards/hero-pretrained-generation.avif" style="height: 5.5em; border-radius: 6px;" alt="Pre-trained Generation">
     <p>Pre-trained Generation</p>
   </div>
   <div style="display: flex; align-items: center; gap: 0.6em;">
-    <img src="../assets/cards/hero-grid-trigram.avif" style="height: 5.5em; border-radius: 6px;" alt="Trigram">
+    <img src="./assets/cards/hero-grid-trigram.avif" style="height: 5.5em; border-radius: 6px;" alt="Trigram">
     <p>Trigram</p>
   </div>
   <div style="display: flex; align-items: center; gap: 0.6em;">
-    <img src="../assets/cards/hero-sampling.avif" style="height: 5.5em; border-radius: 6px;" alt="Sampling">
+    <img src="./assets/cards/hero-sampling.avif" style="height: 5.5em; border-radius: 6px;" alt="Sampling">
     <p>Sampling</p>
   </div>
   <div style="display: flex; align-items: center; gap: 0.6em;">
-    <img src="../assets/cards/hero-beam-search.avif" style="height: 5.5em; border-radius: 6px;" alt="Beam Search">
+    <img src="./assets/cards/hero-beam-search.avif" style="height: 5.5em; border-radius: 6px;" alt="Beam Search">
     <p>Beam Search</p>
   </div>
   <div style="display: flex; align-items: center; gap: 0.6em;">
-    <img src="../assets/cards/hero-tool-use.avif" style="height: 5.5em; border-radius: 6px;" alt="Tool Use">
+    <img src="./assets/cards/hero-tool-use.avif" style="height: 5.5em; border-radius: 6px;" alt="Tool Use">
     <p>Tool Use</p>
   </div>
   <div style="display: flex; align-items: center; gap: 0.6em;">
-    <img src="../assets/cards/hero-context-columns.avif" style="height: 5.5em; border-radius: 6px;" alt="Context Columns">
+    <img src="./assets/cards/hero-context-columns.avif" style="height: 5.5em; border-radius: 6px;" alt="Context Columns">
     <p>Context Columns</p>
   </div>
   <div style="display: flex; align-items: center; gap: 0.6em;">
-    <img src="../assets/cards/hero-word-embeddings.avif" style="height: 5.5em; border-radius: 6px;" alt="Word Embeddings">
+    <img src="./assets/cards/hero-word-embeddings.avif" style="height: 5.5em; border-radius: 6px;" alt="Word Embeddings">
     <p>Word Embeddings</p>
   </div>
   <div style="display: flex; align-items: center; gap: 0.6em;">
-    <img src="../assets/cards/hero-lora.avif" style="height: 5.5em; border-radius: 6px;" alt="LoRA">
+    <img src="./assets/cards/hero-lora.avif" style="height: 5.5em; border-radius: 6px;" alt="LoRA">
     <p>LoRA</p>
   </div>
   <div style="display: flex; align-items: center; gap: 0.6em;">
-    <img src="../assets/cards/hero-rlhf.avif" style="height: 5.5em; border-radius: 6px;" alt="RLHF">
+    <img src="./assets/cards/hero-rlhf.avif" style="height: 5.5em; border-radius: 6px;" alt="RLHF">
     <p>RLHF</p>
   </div>
   <div style="display: flex; align-items: center; gap: 0.6em;">
-    <img src="../assets/cards/hero-synthetic-data.avif" style="height: 5.5em; border-radius: 6px;" alt="Synthetic Data">
+    <img src="./assets/cards/hero-synthetic-data.avif" style="height: 5.5em; border-radius: 6px;" alt="Synthetic Data">
     <p>Synthetic Data</p>
   </div>
 </div>
@@ -256,13 +256,13 @@ about 30mins each (but flexible)
 
 # Reception
 
-![bg brightness:0.2](../assets/bg-div-reception.avif)
+![bg brightness:0.2](./assets/bg-div-reception.avif)
 
 ---
 
 ## Notes from the field
 
-![bg right:40%](../assets/bg-participants.avif)
+![bg right:40%](./assets/bg-participants.avif)
 
 over 500 participants over the past year
 
@@ -275,7 +275,7 @@ over 500 participants over the past year
 
 <!-- _class: quote -->
 
-![bg brightness:0.2](../assets/bg-div-quote.avif)
+![bg brightness:0.2](./assets/bg-div-quote.avif)
 
 > LLMs are "just" probability and randomness at scale---not reasoning, not
 > understanding, but sophisticated pattern matching
@@ -284,7 +284,7 @@ over 500 participants over the past year
 
 ## The shareback moment
 
-![bg right:40%](../assets/bg-title.avif)
+![bg right:40%](./assets/bg-title.avif)
 
 the room comes alive during the generation lesson when groups share the output
 from _their_ model
@@ -299,13 +299,13 @@ from _their_ model
 
 # Resources
 
-![bg brightness:0.2](../assets/bg-div-resources.avif)
+![bg brightness:0.2](./assets/bg-div-resources.avif)
 
 ---
 
 ## What's available
 
-![bg right:40%](../assets/bg-resources.avif)
+![bg right:40%](./assets/bg-resources.avif)
 
 - lessons with instructor notes
 - interactive widgets
@@ -324,7 +324,7 @@ all **CC BY-NC-SA** licensed
 
 ## Next steps
 
-![bg right:40%](../assets/bg-randomness.avif)
+![bg right:40%](./assets/bg-randomness.avif)
 
 - continued development (esp. extensions)
 - teacher training
@@ -337,7 +337,7 @@ all **CC BY-NC-SA** licensed
 
 ## This Friday
 
-![bg right:40%](../assets/bg-brimbank.avif)
+![bg right:40%](./assets/bg-brimbank.avif)
 
 _Lifting the Veil_---a hands-on AI workshop for educators with Brimbank Tech
 School at VU Sunshine Campus
@@ -354,7 +354,7 @@ Friday 13 February, 10am--3pm
 
 [benswift.me](https://benswift.me)
 
-![bg right:60%](../assets/bg-div-quote.avif)
+![bg right:60%](./assets/bg-div-quote.avif)
 
 ---
 
@@ -364,4 +364,4 @@ Friday 13 February, 10am--3pm
 
 # Q&A
 
-![bg right:60%](../assets/bg-participants.avif)
+![bg right:60%](./assets/bg-participants.avif)
