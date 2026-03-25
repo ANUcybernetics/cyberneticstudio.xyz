@@ -17,11 +17,11 @@ Usage:
 """
 
 import argparse
+import re
 import shutil
 import subprocess
 import sys
 import tempfile
-import xml.etree.ElementTree as ET
 from pathlib import Path
 
 import cv2
@@ -96,53 +96,35 @@ def vectorise(edges: np.ndarray, turdsize: int = 2, alphamax: float = 1.0) -> st
             text=True,
             check=True,
         )
-        return result.stdout
+        svg = result.stdout
+        svg = re.sub(r"<\?xml[^?]*\?>\s*", "", svg)
+        svg = re.sub(r"<!DOCTYPE[^>]*>\s*", "", svg)
+        svg = re.sub(r'\s*width="[^"]*pt"', "", svg)
+        svg = re.sub(r'\s*height="[^"]*pt"', "", svg)
+        return svg
     finally:
         tmp.unlink(missing_ok=True)
 
 
 def inject_animation(svg: str) -> str:
-    """Add subtle displacement-filter animation for organic movement."""
-    ET.register_namespace("", "http://www.w3.org/2000/svg")
-    root = ET.fromstring(svg)
-    ns = "http://www.w3.org/2000/svg"
-
-    defs = root.find(f"{{{ns}}}defs")
-    if defs is None:
-        defs = ET.SubElement(root, "defs")
-
-    filt = ET.SubElement(defs, "filter", id="wobble")
-    turb = ET.SubElement(
-        filt,
-        "feTurbulence",
-        type="turbulence",
-        baseFrequency="0.015",
-        numOctaves="3",
-        seed="1",
-    )
-    ET.SubElement(
-        turb,
-        "animate",
-        attributeName="baseFrequency",
-        values="0.015;0.02;0.015",
-        dur="10s",
-        repeatCount="indefinite",
-    )
-    ET.SubElement(
-        filt,
-        "feDisplacementMap",
-        scale="2",
-        **{"in": "SourceGraphic"},
+    """Add CSS wobble animation for organic movement via string surgery."""
+    style_block = (
+        "<style>"
+        "@keyframes wobble{"
+        "0%,100%{transform:translate(0,0) rotate(0deg)}"
+        "25%{transform:translate(2px,-1.5px) rotate(0.3deg)}"
+        "50%{transform:translate(-1.5px,2px) rotate(-0.3deg)}"
+        "75%{transform:translate(-2px,-1px) rotate(0.15deg)}"
+        "}"
+        ".wobble{animation:wobble 8s ease-in-out infinite}"
+        "@media(prefers-reduced-motion:reduce){.wobble{animation:none}}"
+        "</style>"
     )
 
-    for g in root.findall(f".//{{{ns}}}g"):
-        g.set("filter", "url(#wobble)")
-        break
-    else:
-        for path in root.findall(f".//{{{ns}}}path"):
-            path.set("filter", "url(#wobble)")
-
-    return ET.tostring(root, encoding="unicode", xml_declaration=True)
+    svg = re.sub(r"(<svg[^>]*>)", rf"\1{style_block}", svg, count=1)
+    svg = re.sub(r"(<g\b[^>]*>)", r'<g class="wobble">\1', svg, count=1)
+    svg = re.sub(r"(</g>\s*</svg>)", r"</g>\1", svg, count=1)
+    return svg
 
 
 def build_parser() -> argparse.ArgumentParser:
