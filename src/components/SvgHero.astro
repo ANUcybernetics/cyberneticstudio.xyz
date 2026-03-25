@@ -1,7 +1,6 @@
 ---
 import fs from "node:fs";
 import path from "node:path";
-import SvgHeroInteractive from "./SvgHeroInteractive.svelte";
 
 interface Props {
   slug: string;
@@ -18,21 +17,10 @@ try {
 }
 ---
 
-{svgContent && (
-  <div class="svg-hero-wrapper">
-    <div class="svg-hero-static" set:html={svgContent} />
-    <SvgHeroInteractive client:load svg={svgContent} />
-  </div>
-)}
+{svgContent && <div class="svg-hero" set:html={svgContent} />}
 
 <style>
-  .svg-hero-wrapper {
-    width: 100%;
-    height: 100%;
-    position: relative;
-  }
-
-  .svg-hero-static {
+  .svg-hero {
     width: 100%;
     height: 100%;
     display: flex;
@@ -41,13 +29,35 @@ try {
     overflow: hidden;
   }
 
-  .svg-hero-static :global(svg) {
+  .svg-hero :global(svg) {
     width: 100%;
     height: 100%;
   }
 
-  .svg-hero-static :global(path) {
+  @keyframes pulse {
+    0%, 100% {
+      opacity: 0.35;
+      transform: scale(1);
+    }
+    50% {
+      opacity: 0.9;
+      transform: scale(1.15);
+    }
+  }
+
+  .svg-hero :global(path) {
     fill: var(--color-accent);
-    opacity: 0.4;
+    transform-origin: center;
+    transform-box: fill-box;
+    will-change: transform, opacity;
+    animation: pulse calc(4s + var(--i, 0) * 0.2s) ease-in-out infinite;
+    animation-delay: calc(var(--i, 0) * -0.4s);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .svg-hero :global(path) {
+      animation: none;
+      opacity: 0.6;
+    }
   }
 </style>

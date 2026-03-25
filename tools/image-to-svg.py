@@ -105,6 +105,18 @@ def vectorise(edges: np.ndarray, turdsize: int = 2, alphamax: float = 1.0) -> st
         tmp.unlink(missing_ok=True)
 
 
+def index_paths(svg: str) -> str:
+    """Add a --i custom property to each path for CSS animation staggering."""
+    counter = [0]
+
+    def replacer(m: re.Match) -> str:
+        i = counter[0]
+        counter[0] += 1
+        return f'{m.group(0)} style="--i:{i}"'
+
+    return re.sub(r"<path\b", replacer, svg)
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         description="Convert a reference image to a stylised SVG line drawing."
@@ -152,6 +164,7 @@ def main(argv: list[str] | None = None) -> None:
 
     print("Vectorising with potrace...", file=sys.stderr)
     svg = vectorise(edges)
+    svg = index_paths(svg)
 
     args.output.write_text(svg)
 

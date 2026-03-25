@@ -10,8 +10,6 @@
 """Tests for image-to-svg conversion pipeline."""
 
 import shutil
-import textwrap
-import xml.etree.ElementTree as ET
 from pathlib import Path
 
 import cv2
@@ -27,7 +25,7 @@ detect_edges_xdog = mod.detect_edges_xdog
 detect_edges_canny = mod.detect_edges_canny
 resize_if_needed = mod.resize_if_needed
 vectorise = mod.vectorise
-inject_animation = mod.inject_animation
+index_paths = mod.index_paths
 build_parser = mod.build_parser
 
 requires_potrace = pytest.mark.skipif(
@@ -131,67 +129,24 @@ class TestResize:
         assert result.shape[:2] == (800, 800)
 
 
-MINIMAL_SVG = textwrap.dedent("""\
-    <?xml version="1.0" standalone="no"?>
-    <svg xmlns="http://www.w3.org/2000/svg" width="100" height="100">
-    <g><path d="M 10 10 L 90 90"/></g>
-    </svg>""")
+class TestIndexPaths:
+    def test_adds_index_to_paths(self):
+        svg = '<svg><path d="M0 0"/><path d="M1 1"/><path d="M2 2"/></svg>'
+        result = index_paths(svg)
+        assert 'style="--i:0"' in result
+        assert 'style="--i:1"' in result
+        assert 'style="--i:2"' in result
 
+    def test_no_paths_unchanged(self):
+        svg = '<svg><g></g></svg>'
+        result = index_paths(svg)
+        assert result == svg
 
-class TestInjectAnimation:
-    def test_adds_filter_element(self):
-        result = inject_animation(MINIMAL_SVG)
-        root = ET.fromstring(result)
-        ns = "http://www.w3.org/2000/svg"
-        filters = root.findall(f".//{{{ns}}}filter")
-        assert len(filters) == 1
-        assert filters[0].get("id") == "wobble"
-
-    def test_adds_turbulence_and_animate(self):
-        result = inject_animation(MINIMAL_SVG)
-        root = ET.fromstring(result)
-        ns = "http://www.w3.org/2000/svg"
-        assert len(root.findall(f".//{{{ns}}}feTurbulence")) == 1
-        anims = root.findall(f".//{{{ns}}}animate")
-        assert len(anims) == 1
-        assert anims[0].get("repeatCount") == "indefinite"
-
-    def test_applies_filter_to_group(self):
-        result = inject_animation(MINIMAL_SVG)
-        root = ET.fromstring(result)
-        ns = "http://www.w3.org/2000/svg"
-        groups = root.findall(f".//{{{ns}}}g")
-        assert any(g.get("filter") == "url(#wobble)" for g in groups)
-
-    def test_applies_filter_to_paths_when_no_group(self):
-        svg_no_group = textwrap.dedent("""\
-            <?xml version="1.0"?>
-            <svg xmlns="http://www.w3.org/2000/svg">
-            <path d="M 0 0 L 10 10"/>
-            </svg>""")
-        result = inject_animation(svg_no_group)
-        root = ET.fromstring(result)
-        ns = "http://www.w3.org/2000/svg"
-        paths = root.findall(f".//{{{ns}}}path")
-        assert any(p.get("filter") == "url(#wobble)" for p in paths)
-
-    def test_output_is_valid_xml(self):
-        result = inject_animation(MINIMAL_SVG)
-        ET.fromstring(result)
-
-    def test_preserves_existing_defs(self):
-        svg_with_defs = textwrap.dedent("""\
-            <?xml version="1.0"?>
-            <svg xmlns="http://www.w3.org/2000/svg">
-            <defs><style>path { fill: black; }</style></defs>
-            <path d="M 0 0 L 10 10"/>
-            </svg>""")
-        result = inject_animation(svg_with_defs)
-        root = ET.fromstring(result)
-        ns = "http://www.w3.org/2000/svg"
-        defs = root.findall(f"{{{ns}}}defs")
-        assert len(defs) == 1
-        assert len(defs[0].findall(f"{{{ns}}}style")) == 1
+    def test_preserves_existing_attributes(self):
+        svg = '<svg><path d="M0 0" fill="red"/></svg>'
+        result = index_paths(svg)
+        assert 'fill="red"' in result
+        assert 'style="--i:0"' in result
 
 
 @requires_potrace
@@ -203,6 +158,18 @@ class TestVectorise:
     def test_svg_contains_paths(self, sample_edge_map: np.ndarray):
         svg = vectorise(sample_edge_map)
         assert "<path" in svg
+
+    def test_strips_xml_declaration(self, sample_edge_map: np.ndarray):
+        svg = vectorise(sample_edge_map)
+        assert "<?xml" not in svg
+
+    def test_strips_doctype(self, sample_edge_map: np.ndarray):
+        svg = vectorise(sample_edge_map)
+        assert "<!DOCTYPE" not in svg
+
+    def test_strips_pt_dimensions(self, sample_edge_map: np.ndarray):
+        svg = vectorise(sample_edge_map)
+        assert "pt" not in svg
 
     def test_turdsize_suppresses_speckles(self):
         noisy = np.zeros((100, 100), dtype=np.uint8)
@@ -230,10 +197,6 @@ class TestBuildParser:
         args = build_parser().parse_args(["test.jpg", "-o", "out.svg"])
         assert args.output == Path("out.svg")
 
-    def test_animate_flag(self):
-        args = build_parser().parse_args(["test.jpg", "--animate"])
-        assert args.animate is True
-
     def test_default_max_size(self):
         args = build_parser().parse_args(["test.jpg"])
         assert args.max_size == 800
@@ -244,22 +207,16 @@ class TestEndToEnd:
     def test_xdog_pipeline(self, gradient_image: np.ndarray, tmp_path: Path):
         edges = detect_edges_xdog(gradient_image)
         svg = vectorise(edges)
+        svg = index_paths(svg)
         out = tmp_path / "test.svg"
         out.write_text(svg)
         assert out.exists()
         assert out.stat().st_size > 0
         assert "<path" in svg
+        assert "style=" in svg
 
     def test_canny_pipeline(self, gradient_image: np.ndarray):
         edges = detect_edges_canny(gradient_image)
         svg = vectorise(edges)
+        svg = index_paths(svg)
         assert "<path" in svg
-
-    def test_pipeline_with_animation(self, gradient_image: np.ndarray):
-        edges = detect_edges_xdog(gradient_image)
-        svg = vectorise(edges)
-        svg = inject_animation(svg)
-        root = ET.fromstring(svg)
-        ns = "http://www.w3.org/2000/svg"
-        assert root.findall(f".//{{{ns}}}filter")
-        assert root.findall(f".//{{{ns}}}animate")
