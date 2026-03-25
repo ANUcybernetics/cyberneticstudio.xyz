@@ -1,6 +1,7 @@
 ---
 import fs from "node:fs";
 import path from "node:path";
+import SvgHeroInteractive from "./SvgHeroInteractive.svelte";
 
 interface Props {
   slug: string;
@@ -17,10 +18,21 @@ try {
 }
 ---
 
-{svgContent && <div class="svg-hero" set:html={svgContent} />}
+{svgContent && (
+  <div class="svg-hero-wrapper">
+    <div class="svg-hero-static" set:html={svgContent} />
+    <SvgHeroInteractive client:load svg={svgContent} />
+  </div>
+)}
 
 <style>
-  .svg-hero {
+  .svg-hero-wrapper {
+    width: 100%;
+    height: 100%;
+    position: relative;
+  }
+
+  .svg-hero-static {
     width: 100%;
     height: 100%;
     display: flex;
@@ -29,13 +41,13 @@ try {
     overflow: hidden;
   }
 
-  .svg-hero :global(svg) {
+  .svg-hero-static :global(svg) {
     width: 100%;
     height: 100%;
-    object-fit: cover;
   }
 
-  .svg-hero :global(path) {
+  .svg-hero-static :global(path) {
     fill: var(--color-accent);
+    opacity: 0.4;
   }
 </style>

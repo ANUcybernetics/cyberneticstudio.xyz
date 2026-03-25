@@ -13,7 +13,6 @@ Requires: brew install potrace
 Usage:
     uv run tools/image-to-svg.py photo.jpg -o drawing.svg
     uv run tools/image-to-svg.py photo.jpg -o drawing.svg --method canny
-    uv run tools/image-to-svg.py photo.jpg -o drawing.svg --animate
 """
 
 import argparse
@@ -106,27 +105,6 @@ def vectorise(edges: np.ndarray, turdsize: int = 2, alphamax: float = 1.0) -> st
         tmp.unlink(missing_ok=True)
 
 
-def inject_animation(svg: str) -> str:
-    """Add CSS wobble animation for organic movement via string surgery."""
-    style_block = (
-        "<style>"
-        "@keyframes wobble{"
-        "0%,100%{transform:translate(0,0) rotate(0deg)}"
-        "25%{transform:translate(2px,-1.5px) rotate(0.3deg)}"
-        "50%{transform:translate(-1.5px,2px) rotate(-0.3deg)}"
-        "75%{transform:translate(-2px,-1px) rotate(0.15deg)}"
-        "}"
-        ".wobble{animation:wobble 8s ease-in-out infinite}"
-        "@media(prefers-reduced-motion:reduce){.wobble{animation:none}}"
-        "</style>"
-    )
-
-    svg = re.sub(r"(<svg[^>]*>)", rf"\1{style_block}", svg, count=1)
-    svg = re.sub(r"(<g\b[^>]*>)", r'<g class="wobble">\1', svg, count=1)
-    svg = re.sub(r"(</g>\s*</svg>)", r"</g>\1", svg, count=1)
-    return svg
-
-
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         description="Convert a reference image to a stylised SVG line drawing."
@@ -138,10 +116,6 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "--method", choices=["xdog", "canny"], default="xdog",
         help="edge detection method (default: xdog)",
-    )
-    parser.add_argument(
-        "--animate", action="store_true",
-        help="add subtle organic movement animation",
     )
     parser.add_argument(
         "--max-size", type=int, default=800,
@@ -179,11 +153,18 @@ def main(argv: list[str] | None = None) -> None:
     print("Vectorising with potrace...", file=sys.stderr)
     svg = vectorise(edges)
 
-    if args.animate:
-        print("Adding animation...", file=sys.stderr)
-        svg = inject_animation(svg)
-
     args.output.write_text(svg)
+
+    if shutil.which("svgo"):
+        print("Optimising with svgo...", file=sys.stderr)
+        before = args.output.stat().st_size
+        subprocess.run(["svgo", str(args.output)], check=True, capture_output=True)
+        after = args.output.stat().st_size
+        pct = (1 - after / before) * 100
+        print(f"svgo: {before // 1024}KB → {after // 1024}KB ({pct:.0f}% reduction)", file=sys.stderr)
+    else:
+        print("svgo not found, skipping optimisation", file=sys.stderr)
+
     print(f"Written to {args.output}", file=sys.stderr)
 
 
