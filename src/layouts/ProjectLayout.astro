@@ -1,7 +1,7 @@
 ---
 import { Image } from "astro:assets";
 import BaseLayout from "./BaseLayout.astro";
-import LissajousImage from "../components/LissajousImage.svelte";
+import SvgHero from "../components/SvgHero.astro";
 
 interface Publication {
   title: string;
@@ -48,7 +48,7 @@ const formattedDate = new Date(date).toLocaleDateString("en-AU", {
   <article class="project">
     {slug && (
       <div class="project-hero" style={slug ? `view-transition-name: hero-${slug}` : undefined}>
-        <LissajousImage client:only="svelte" src={`/lissajous/${slug}.json`} />
+        <SvgHero slug={slug} />
       </div>
     )}
     <header class="project-header">

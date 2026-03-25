@@ -1,0 +1,41 @@
+---
+import fs from "node:fs";
+import path from "node:path";
+
+interface Props {
+  slug: string;
+}
+
+const { slug } = Astro.props;
+const svgPath = path.join(process.cwd(), "public", "heroes", `${slug}.svg`);
+let svgContent = "";
+
+try {
+  svgContent = fs.readFileSync(svgPath, "utf-8");
+} catch {
+  // no SVG for this project
+}
+---
+
+{svgContent && <div class="svg-hero" set:html={svgContent} />}
+
+<style>
+  .svg-hero {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+
+  .svg-hero :global(svg) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .svg-hero :global(path) {
+    fill: var(--color-accent);
+  }
+</style>
