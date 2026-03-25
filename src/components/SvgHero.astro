@@ -19,7 +19,7 @@ try {
 
 {svgContent && <div class="svg-hero" set:html={svgContent} />}
 
-<style>
+<style is:global>
   .svg-hero {
     width: 100%;
     height: 100%;
@@ -29,7 +29,7 @@ try {
     overflow: hidden;
   }
 
-  .svg-hero :global(svg) {
+  .svg-hero svg {
     width: 100%;
     height: 100%;
   }
@@ -45,7 +45,7 @@ try {
     }
   }
 
-  .svg-hero :global(path) {
+  .svg-hero path {
     fill: var(--color-accent);
     transform-origin: center;
     transform-box: fill-box;
@@ -55,7 +55,7 @@ try {
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .svg-hero :global(path) {
+    .svg-hero path {
       animation: none;
       opacity: 0.6;
     }

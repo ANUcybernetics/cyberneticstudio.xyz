@@ -167,17 +167,6 @@ def main(argv: list[str] | None = None) -> None:
     svg = index_paths(svg)
 
     args.output.write_text(svg)
-
-    if shutil.which("svgo"):
-        print("Optimising with svgo...", file=sys.stderr)
-        before = args.output.stat().st_size
-        subprocess.run(["svgo", str(args.output)], check=True, capture_output=True)
-        after = args.output.stat().st_size
-        pct = (1 - after / before) * 100
-        print(f"svgo: {before // 1024}KB → {after // 1024}KB ({pct:.0f}% reduction)", file=sys.stderr)
-    else:
-        print("svgo not found, skipping optimisation", file=sys.stderr)
-
     print(f"Written to {args.output}", file=sys.stderr)
 
 
