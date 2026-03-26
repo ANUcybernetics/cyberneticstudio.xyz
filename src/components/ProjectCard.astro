@@ -1,5 +1,5 @@
 ---
-import SvgHero from "./SvgHero.astro";
+import LineSvg from "./LineSvg.astro";
 
 interface Props {
   title: string;
@@ -13,7 +13,7 @@ const { title, description, slug } = Astro.props;
 <article class="project-card">
   <a href={`/projects/${slug}/`}>
     <div class="card-hero" style={`view-transition-name: hero-${slug}`}>
-      <SvgHero slug={slug} />
+      <LineSvg slug={slug} />
     </div>
     <div class="card-body">
       <h3 class="card-title">{title}</h3>

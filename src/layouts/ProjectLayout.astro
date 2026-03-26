@@ -1,7 +1,7 @@
 ---
 import { Image } from "astro:assets";
 import BaseLayout from "./BaseLayout.astro";
-import SvgHero from "../components/SvgHero.astro";
+import LineSvg from "../components/LineSvg.astro";
 
 interface Publication {
   title: string;
@@ -48,7 +48,7 @@ const formattedDate = new Date(date).toLocaleDateString("en-AU", {
   <article class="project">
     {slug && (
       <div class="project-hero" style={slug ? `view-transition-name: hero-${slug}` : undefined}>
-        <SvgHero slug={slug} />
+        <LineSvg slug={slug} />
         <h1 class="hero-title">{title}</h1>
       </div>
     )}
