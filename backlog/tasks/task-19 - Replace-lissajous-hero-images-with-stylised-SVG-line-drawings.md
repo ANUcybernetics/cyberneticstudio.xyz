@@ -1,20 +1,18 @@
 ---
 id: TASK-19
 title: Replace lissajous hero images with stylised SVG line drawings
-status: To Do
+status: Done
 assignee: []
 created_date: '2026-03-21 01:41'
+updated_date: '2026-03-25 23:45'
 labels:
   - frontend
   - design
 dependencies: []
 references:
   - tools/image-to-svg.py
-  - src/components/LissajousImage.svelte
-  - src/components/LissajousWave.svelte
-  - src/components/ProjectCard.astro
-  - src/layouts/ProjectLayout.astro
-  - scripts/generate-lissajous-2d.ts
+  - src/components/SvgHero.astro
+  - public/heroes/
 priority: medium
 ---
 
@@ -45,10 +43,16 @@ This replaces the JSON-based lissajous data pipeline (`/lissajous/*.json` files 
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 Each project has a stylised SVG line drawing generated from its reference image via tools/image-to-svg.py
-- [ ] #2 SVG hero images display correctly in ProjectCard and ProjectLayout with the subtle displacement animation
-- [ ] #3 View transitions (morph between card and detail page) continue to work with SVG hero images
-- [ ] #4 The lissajous JSON data pipeline (generate-lissajous-2d.ts, /lissajous/*.json, LissajousImage.svelte) is removed
-- [ ] #5 Build passes with no regressions
-- [ ] #6 SVG file sizes are reasonable (under ~200KB each after potrace optimisation)
+- [x] #1 Each project has a stylised SVG line drawing generated from its reference image via tools/image-to-svg.py
+- [x] #2 SVG hero images display correctly in ProjectCard and ProjectLayout with the subtle displacement animation
+- [x] #3 View transitions (morph between card and detail page) continue to work with SVG hero images
+- [x] #4 The lissajous JSON data pipeline (generate-lissajous-2d.ts, /lissajous/*.json, LissajousImage.svelte) is removed
+- [x] #5 Build passes with no regressions
+- [x] #6 SVG file sizes are reasonable (under ~200KB each after potrace optimisation)
 <!-- AC:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+Replaced lissajous canvas heroes with stylised SVG line drawings using canny edge detection + potrace. Each project's hero image is processed into a clean inline SVG with per-path CSS animations (sinusoidal pulse with staggered timing via `--i` custom property). Hardware-accelerated using only transform and opacity. Respects prefers-reduced-motion. Static fallback for no-JS. SVGs optimised with svgo (11--46KB each). Removed: LissajousImage.svelte, generate-lissajous-2d.ts, /lissajous/*.json, test-lissajous page. Kept: LissajousWave.svelte (homepage hero).
+<!-- SECTION:FINAL_SUMMARY:END -->

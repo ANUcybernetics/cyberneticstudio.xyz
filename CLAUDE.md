@@ -15,6 +15,7 @@ All commands via `mise exec -- pnpm run <script>`:
 - **Nav**: Projects, News, People
 - **Styling**: vanilla CSS, design tokens in `src/styles/global.css` --- `#0d0d0d` bg, white fg, `#e6ff44` accent with glow effects. Modern CSS: view transitions, `@starting-style`, `:has()`, scroll-driven animations, CSS nesting, container queries
 - **Fonts**: Space Grotesk (all text) --- self-hosted woff2 in `public/fonts/`
+- **Images**: never use regular raster images on the site. Always generate an SVG version using `mise exec -- uv run tools/image-to-svg.py <input> -o <output>` and use the SVG instead. Hero SVGs go in `public/heroes/` and are displayed via the `SvgHero` component with accent-coloured animated paths
 - **View transitions**: `<ClientRouter />` in `BaseHead` for site-wide cross-fade; hero images morph between card and detail page via `view-transition-name`
 
 ## Decks (slide presentations)

@@ -1,20 +1,15 @@
 ---
-import { Image } from "astro:assets";
 import BaseLayout from "../../layouts/BaseLayout.astro";
-import benSwiftPhoto from "../../assets/images/ben-swift.webp";
+import SvgHero from "../../components/SvgHero.astro";
 ---
 
 <BaseLayout title="People" description="The people behind Cybernetic Studio">
   <h1 class="glow">People</h1>
   <div class="people-grid">
     <article class="person-card">
-      <Image
-        src={benSwiftPhoto}
-        alt="Line drawing portrait of Ben Swift"
-        class="person-photo"
-        width={200}
-        height={200}
-      />
+      <div class="person-hero">
+        <SvgHero slug="ben-swift" />
+      </div>
       <div class="person-info">
         <h2>Ben Swift</h2>
         <p class="person-role">Senior Lecturer, ANU School of Cybernetics</p>
@@ -59,11 +54,12 @@ import benSwiftPhoto from "../../assets/images/ben-swift.webp";
     border-radius: 12px;
   }
 
-  .person-photo {
+  .person-hero {
+    position: relative;
     width: 200px;
     height: 200px;
-    object-fit: cover;
     border-radius: 8px;
+    overflow: hidden;
   }
 
   .person-info h2 {

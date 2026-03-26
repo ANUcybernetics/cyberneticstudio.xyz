@@ -126,8 +126,8 @@ def build_parser() -> argparse.ArgumentParser:
         "-o", "--output", type=Path, help="output SVG (default: input with .svg)"
     )
     parser.add_argument(
-        "--method", choices=["xdog", "canny"], default="xdog",
-        help="edge detection method (default: xdog)",
+        "--method", choices=["xdog", "canny"], default="canny",
+        help="edge detection method (default: canny)",
     )
     parser.add_argument(
         "--max-size", type=int, default=800,
