@@ -21,6 +21,9 @@ pnpm-debug.log*
 # jetbrains setting folder
 .idea/
 
+# python
+__pycache__/
+
 # test results
 test-results/
 playwright-report/
