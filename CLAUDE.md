@@ -20,35 +20,35 @@ All commands via `mise exec -- pnpm run <script>`:
 
 ## Decks (slide presentations)
 
-Markdown-authored slide decks powered by the `astromotion` package (`github:benswift/astromotion`) --- Astro + Svelte + Animotion (Reveal.js) + Marp-inspired syntax. Full-viewport, not listed in navigation --- accessed by direct URL only.
+Markdown-authored slide decks powered by the `astromotion` package (`github:benswift/astromotion`) --- Astro + Reveal.js + Marp-inspired syntax. No JS framework shipped for markdown decks. Full-viewport, not listed in navigation --- accessed by direct URL only.
 
 ### File structure
 
-- slides: `src/decks/<name>.deck.svx` --- top-level deck files where `<name>` is the slug (URL: `/decks/<name>/`)
+- slides: `src/decks/<name>.deck.md` --- top-level deck files where `<name>` is the slug (URL: `/decks/<name>/`)
 - shared assets: `src/decks/assets/` (shared bg images across decks)
 - listing page: `src/pages/decks/index.astro` (uses site's `BaseLayout`)
 - route page: injected by `astromotion` integration (catch-all `/decks/[...slug]`)
-- theme, preprocessor, loader, layout, shims: all provided by `astromotion` package
+- theme, layout: provided by `astromotion` package
 
 ### Authoring
 
-Slides are `.deck.svx` files in `src/decks/` that get preprocessed: markdown content is converted to HTML and wrapped in `<Presentation><Slide>` components. Separate slides with `\n---\n`.
+Slides are `.deck.md` files in `src/decks/` processed by astromotion's Vite plugin into static HTML `<section>` elements. Separate slides with `\n---\n`.
 
 - `<!-- _class: impact -->` --- set slide CSS class (available: `impact`, `banner`, `quote`, `centered`)
 - `<!-- notes: Speaker notes here -->` --- presenter notes
-- `![bg](url)` --- full-bleed background image (also `contain`, `cover`). Relative paths (including in raw `<img>` tags) resolve via Vite imports: `./assets/photo.jpg` for shared images in `src/decks/assets/`; absolute paths (`/images/...`) reference `public/`
+- `![bg](url)` --- full-bleed background image (also `contain`, `cover`). Relative paths resolve via Vite: `./assets/photo.jpg` for shared images in `src/decks/assets/`; absolute paths (`/images/...`) reference `public/`
 - `![bg left:50%](url)` / `![bg right:40%](url)` --- split layout with image
 - `![bg blur:5px brightness:0.7](url)` --- CSS filters on background
-- sections containing animotion components (`<Action>`, `<Code>`, `<Transition>`) skip markdown processing and pass through as raw Svelte
-- `<script>` and `<style>` blocks are preserved; auto-imports for animotion components are added if missing
+- `![qr](url)` --- generates animated SVG QR code at build time
+- `<!-- _class: anu-logo -->` / `<!-- _class: socy-logo -->` --- full-slide animated SVG logos
+- `<!-- @include ./shared-intro.md -->` --- inline markdown from another file
 - `.columns` CSS class available for two-column grid layout within slide content
+- smartypants typography applied automatically (curly quotes, em dashes)
 
-### Animotion docs
-
-Upstream animotion documentation: https://animotion.pages.dev/llms.txt
+For interactive decks needing Svelte, use `.deck.svelte` instead (requires `@astrojs/svelte` + `deckPreprocessor()` in astro config).
 
 ### Layout notes
 
-- deck pages use `DeckLayout` + `DeckHead` from `astromotion` (no `<ClientRouter />` --- would conflict with Reveal.js keyboard navigation)
+- deck pages use `DeckLayout` from `astromotion` (no `<ClientRouter />` --- would conflict with Reveal.js keyboard navigation)
 - decks import their own theme CSS (visually independent from site's `global.css`)
 - `@tailwindcss/vite` in `astro.config.mjs` only processes CSS files containing `@import "tailwindcss"` --- rest of site unaffected

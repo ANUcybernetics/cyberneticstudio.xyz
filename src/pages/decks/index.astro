@@ -17,7 +17,7 @@ for (const entry of fs.readdirSync(decksDir, { withFileTypes: true })) {
   if (entry.isDirectory()) {
     const dirPath = path.join(decksDir, entry.name);
     for (const file of fs.readdirSync(dirPath)) {
-      const match = file.match(/^(.+)\.deck\.svx$/);
+      const match = file.match(/^(.+)\.deck\.md$/);
       if (!match) continue;
       const name = match[1];
       const raw = fs.readFileSync(path.join(dirPath, file), "utf-8");
@@ -26,7 +26,7 @@ for (const entry of fs.readdirSync(decksDir, { withFileTypes: true })) {
       decks.push({ slug, title: data.title ?? slug, description: data.description });
     }
   } else if (entry.isFile()) {
-    const match = entry.name.match(/^(.+)\.deck\.svx$/);
+    const match = entry.name.match(/^(.+)\.deck\.md$/);
     if (!match) continue;
     const name = match[1];
     const raw = fs.readFileSync(path.join(decksDir, entry.name), "utf-8");
