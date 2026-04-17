@@ -1,87 +1,84 @@
 ---
-import BaseLayout from "../../layouts/BaseLayout.astro";
-import LineSvg from "../../components/LineSvg.astro";
+import { Image } from "astro:assets";
+import { getCollection, render } from "astro:content";
+import ContentLayout from "astro-theme-anu/layouts/ContentLayout.astro";
+import { siteConfig } from "../../site-config";
+
+const people = (await getCollection("people")).toSorted(
+  (a, b) => a.data.order - b.data.order,
+);
+
+const rendered = await Promise.all(
+  people.map(async (person) => {
+    const { Content } = await render(person);
+    return { person, Content };
+  }),
+);
 ---
 
-<BaseLayout title="People" description="The people behind Cybernetic Studio">
-  <h1 class="glow">People</h1>
+<ContentLayout
+  title="People"
+  description="The people behind Cybernetic Studio"
+  {...siteConfig}
+>
   <div class="people-grid">
-    <article class="person-card">
-      <div class="person-hero">
-        <LineSvg slug="ben-swift" />
-      </div>
-      <div class="person-info">
-        <h2>Ben Swift</h2>
-        <p class="person-role">Senior Lecturer, ANU School of Cybernetics</p>
-        <p>
-          Ben Swift leads the Cybernetic Studio. He's a researcher, artist,
-          creative technologist and educator whose work spans AI, computational
-          art and music, data visualisation, cybernetics and full-stack web
-          development. As a livecoding artist, he performs at international
-          festivals including ISEA and ICLC&mdash;often as one half of the duo
-          Funktion with Ushini Attanayake&mdash;and co-developed the Extempore
-          programming environment for musical livecoding. He's also a founding
-          co-director of the ANU Laptop Ensemble, and received a Vice
-          Chancellor's Citation for Outstanding Contribution to Student Learning
-          in 2018. A common thread runs through all his work:
-          "liveness"&mdash;human-in-the-loop interactivity with real-time
-          feedback. Canberra born and bred, Ben cares deeply about "making
-          computing a welcoming, interesting and creatively satisfying place,
-          especially for people who don't fit the traditional picture of a
-          'computer scientist'."
-        </p>
-      </div>
-    </article>
+    {rendered.map(({ person, Content }) => (
+      <article class="person-card">
+        {person.data.photo && (
+          <Image
+            src={person.data.photo}
+            alt={person.data.photoAlt ?? person.data.name}
+            width={240}
+            class="person-photo"
+          />
+        )}
+        <div class="person-info">
+          <h2>{person.data.name}</h2>
+          <p class="person-role">{person.data.role}</p>
+          <div class="person-bio">
+            <Content />
+          </div>
+        </div>
+      </article>
+    ))}
   </div>
-</BaseLayout>
+</ContentLayout>
 
 <style>
-  h1 {
-    margin-bottom: var(--space-lg);
-  }
-
   .people-grid {
     display: grid;
-    gap: var(--space-lg);
+    gap: 2rem;
   }
 
   .person-card {
     display: grid;
-    grid-template-columns: 200px 1fr;
-    gap: var(--space-lg);
-    padding: var(--space-lg);
-    border: 1px solid var(--color-border);
-    border-radius: 12px;
+    grid-template-columns: 240px 1fr;
+    gap: 2rem;
+    align-items: start;
   }
 
-  .person-hero {
-    position: relative;
-    width: 200px;
-    height: 200px;
+  .person-photo {
+    width: 100%;
+    height: auto;
     border-radius: 8px;
-    overflow: hidden;
   }
 
   .person-info h2 {
-    margin: 0 0 var(--space-xs);
-    font-size: 1.5rem;
+    margin: 0 0 0.25rem;
   }
 
   .person-role {
-    color: var(--color-accent);
-    font-size: 0.875rem;
-    margin-bottom: var(--space-md);
+    font-weight: 600;
+    margin: 0 0 1rem;
   }
 
-  .person-info p {
-    line-height: 1.6;
+  .person-bio :global(p:last-child) {
+    margin-bottom: 0;
   }
 
-  @media (max-width: 640px) {
+  @media (width < 640px) {
     .person-card {
       grid-template-columns: 1fr;
-      justify-items: center;
-      text-align: center;
     }
   }
 </style>

@@ -1,8 +1,11 @@
 ---
 import type { GetStaticPaths } from "astro";
 import { getCollection } from "astro:content";
-import BaseLayout from "../../layouts/BaseLayout.astro";
-import NewsCard from "../../components/NewsCard.astro";
+import ContentLayout from "astro-theme-anu/layouts/ContentLayout.astro";
+import Card from "astro-theme-anu/components/Card.astro";
+import CardGrid from "astro-theme-anu/components/CardGrid.astro";
+import Pagination from "astro-theme-anu/components/Pagination.astro";
+import { siteConfig } from "../../site-config";
 
 export const getStaticPaths = (async ({ paginate }) => {
   const allNews = (await getCollection("news")).toSorted(
@@ -14,63 +17,24 @@ export const getStaticPaths = (async ({ paginate }) => {
 const { page } = Astro.props;
 ---
 
-<BaseLayout title="News" description="Latest news from Cybernetic Studio">
-  <h1 class="glow">News</h1>
-  <div class="news-grid">
+<ContentLayout
+  title="News"
+  description="Latest news from Cybernetic Studio"
+  {...siteConfig}
+>
+  <CardGrid columns={3}>
     {page.data.map((post) => (
-      <NewsCard
+      <Card
         title={post.data.title}
-        description={post.data.description}
-        slug={post.id}
-        date={post.data.date}
-      />
+        href={`/news/${post.id}/`}
+        image={post.data.hero}
+        imageAlt={post.data.heroAlt}
+        headingLevel="h2"
+      >
+        {post.data.description}
+      </Card>
     ))}
-  </div>
+  </CardGrid>
 
-  {(page.url.prev || page.url.next) && (
-    <nav class="pagination" aria-label="News pagination">
-      {page.url.prev ? (
-        <a href={page.url.prev} class="pagination-link">&larr; Newer</a>
-      ) : (
-        <span />
-      )}
-      <span class="pagination-info">Page {page.currentPage} of {page.lastPage}</span>
-      {page.url.next ? (
-        <a href={page.url.next} class="pagination-link">Older &rarr;</a>
-      ) : (
-        <span />
-      )}
-    </nav>
-  )}
-</BaseLayout>
-
-<style>
-  h1 {
-    margin-bottom: var(--space-xl);
-  }
-
-  .news-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(20rem, 1fr));
-    gap: var(--space-lg);
-  }
-
-  .pagination {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-top: var(--space-xl);
-    padding-top: var(--space-lg);
-    border-top: 1px solid var(--color-border);
-  }
-
-  .pagination-info {
-    color: var(--color-fg-muted);
-    font-size: 0.875rem;
-  }
-
-  .pagination-link {
-    color: var(--color-accent);
-    font-size: 0.9375rem;
-  }
-</style>
+  {page.lastPage > 1 && <Pagination page={page} />}
+</ContentLayout>

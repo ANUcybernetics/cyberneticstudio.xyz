@@ -1,23 +1,14 @@
 // @ts-check
 import { defineConfig } from "astro/config";
 import svelte from "@astrojs/svelte";
-import tailwindcss from "@tailwindcss/vite";
-import remarkSmartypants from "remark-smartypants";
-import { astromotion } from "astromotion";
+import mdx from "@astrojs/mdx";
+import anuTheme from "astro-theme-anu";
 
 export default defineConfig({
   site: "https://cyberneticstudio.xyz",
   integrations: [
+    mdx(),
     svelte(),
-    astromotion({ theme: "./src/decks/theme.css" }),
+    anuTheme({ defaultLayout: "src/layouts/PageLayout.astro" }),
   ],
-  vite: {
-    plugins: [tailwindcss()],
-  },
-  markdown: {
-    smartypants: false,
-    remarkPlugins: [
-      /** @type {any} */ ([remarkSmartypants, { dashes: "oldschool" }]),
-    ],
-  },
 });

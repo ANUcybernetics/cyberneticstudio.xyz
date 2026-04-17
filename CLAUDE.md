@@ -1,54 +1,40 @@
 # cyberneticstudio.xyz
 
-Portfolio site. Astro (static) + Svelte (client-side standalone projects). GitHub Pages.
+Portfolio site. Astro static build using the `astro-theme-anu` theme (ANU institutional look), plus Svelte for the home-page Lissajous wave. Deploys to GitHub Pages.
 
 ## Commands
 
 All commands via `mise exec -- pnpm run <script>`:
-`dev`, `build` (type-check + build), `lint` (oxlint), `fmt` (oxfmt, .ts/.js only), `test` (vitest), `test:e2e` (playwright).
+`dev`, `build` (type-check + build), `lint` (oxlint), `fmt` (oxfmt, .ts/.js only).
 
-## Key patterns
+## Theme
 
-- **Projects**: markdown + co-located images in `src/data/projects/<slug>/index.md`, content collection defined in `src/content.config.ts`. Standard projects use `ProjectLayout`; standalone projects (`layout: "standalone"` in frontmatter) get their own explicit Astro page importing a Svelte component
-- **News**: markdown in `src/data/news/<slug>/index.md`, paginated listing at `/news/`, individual posts via `NewsLayout`
-- **Standalone projects** (planned, not yet implemented): Svelte source in `src/experiments/<name>/App.svelte`, Astro page at `src/pages/projects/<name>/index.astro` using `StandaloneLayout` + `client:only="svelte"` (no SSR)
-- **Nav**: Projects, News, People
-- **Styling**: vanilla CSS, design tokens in `src/styles/global.css` --- `#0d0d0d` bg, white fg, `#e6ff44` accent with glow effects. Modern CSS: view transitions, `@starting-style`, `:has()`, scroll-driven animations, CSS nesting, container queries
-- **Fonts**: Space Grotesk (all text) --- self-hosted woff2 in `public/fonts/`
-- **Images**: never use regular raster images on the site. Always generate an SVG version using `mise exec -- uv run tools/image-to-svg.py <input> -o <output>` and use the SVG instead. SVGs go in `public/svg/` and are displayed via the `LineSvg` component with accent-coloured animated paths
-- **View transitions**: `<ClientRouter />` in `BaseHead` for site-wide cross-fade; hero images morph between card and detail page via `view-transition-name`
+The theme comes from `astro-theme-anu` (pulled from the ANU GitLab mirror) and supplies the `BaseLayout`, `ContentLayout`, `Card`, `CardGrid`, `Pagination`, `Hero`, `Nav`, `Footer`, and the Pagefind-backed search dialog. `src/site-config.ts` declares site name, nav links, and licence via `defineSiteConfig` --- update that file to change the nav.
 
-## Decks (slide presentations)
+The theme runs its own `astro:build:done` checks: a11y (axe), broken-link checking, and search-index build. Failures block the build.
 
-Markdown-authored slide decks powered by the `astromotion` package (`github:benswift/astromotion`) --- Astro + Reveal.js + Marp-inspired syntax. No JS framework shipped for markdown decks. Full-viewport, not listed in navigation --- accessed by direct URL only.
+## Content collections (`src/content.config.ts`)
 
-### File structure
+- **projects** --- `src/data/projects/<slug>/index.md` with co-located images. Fields: `title`, `description`, `creators`, `materials`, `date`, `hero` (image), `heroAlt`, `url`, `github`, `publications`, `relatedProjects`, `order`, `layout`. Rendered via `src/layouts/ProjectLayout.astro`, which wraps `ContentLayout` and adds a structured metadata `<dl>` above the body
+- **news** --- `src/data/news/<slug>/index.md`. Fields: `title`, `description`, `date`, `hero`, `heroAlt`. Paginated listing at `/news/` using theme `Pagination`; posts via `src/layouts/NewsLayout.astro`
+- **people** --- `src/data/people/<slug>/index.md` with co-located photo. Fields: `name`, `role`, `photo`, `photoAlt`, `order`. Bio in markdown body. Rendered inline on `/people/`
 
-- slides: `src/decks/<name>.deck.md` --- top-level deck files where `<name>` is the slug (URL: `/decks/<name>/`)
-- shared assets: `src/decks/assets/` (shared bg images across decks)
-- listing page: `src/pages/decks/index.astro` (uses site's `BaseLayout`)
-- route page: injected by `astromotion` integration (catch-all `/decks/[...slug]`)
-- theme, layout: provided by `astromotion` package
+## Pages
 
-### Authoring
+- `src/pages/index.astro` --- home: Lissajous hero + Projects `CardGrid` + News `CardGrid`
+- `src/pages/projects/[slug].astro` --- dynamic project routes (filters out any `layout: "standalone"` entries for future use)
+- `src/pages/news/[...page].astro` and `[slug].astro` --- paginated news listing + per-post
+- `src/pages/people/index.astro` --- reads the people collection, renders cards
 
-Slides are `.deck.md` files in `src/decks/` processed by astromotion's Vite plugin into static HTML `<section>` elements. Separate slides with `\n---\n`.
+## Layouts
 
-- `<!-- _class: impact -->` --- set slide CSS class (available: `impact`, `banner`, `quote`, `centered`)
-- `<!-- notes: Speaker notes here -->` --- presenter notes
-- `![bg](url)` --- full-bleed background image (also `contain`, `cover`). Relative paths resolve via Vite: `./assets/photo.jpg` for shared images in `src/decks/assets/`; absolute paths (`/images/...`) reference `public/`
-- `![bg left:50%](url)` / `![bg right:40%](url)` --- split layout with image
-- `![bg blur:5px brightness:0.7](url)` --- CSS filters on background
-- `![qr](url)` --- generates animated SVG QR code at build time
-- `<!-- _class: anu-logo -->` / `<!-- _class: socy-logo -->` --- full-slide animated SVG logos
-- `<!-- @include ./shared-intro.md -->` --- inline markdown from another file
-- `.columns` CSS class available for two-column grid layout within slide content
-- smartypants typography applied automatically (curly quotes, em dashes)
+- `src/layouts/PageLayout.astro` --- default layout for MDX pages (set via `anuTheme({ defaultLayout: ... })`), wraps theme `BaseLayout` and spreads `siteConfig`
+- `src/layouts/ProjectLayout.astro` / `NewsLayout.astro` --- thin wrappers over theme `ContentLayout` that add collection-specific metadata
 
-For interactive decks needing Svelte, use `.deck.svelte` instead (requires `@astrojs/svelte` + `deckPreprocessor()` in astro config).
+## Styling
 
-### Layout notes
+Theme-driven --- no custom global stylesheet. Theme tokens (CSS custom properties, `--at-*` and `--anu-*` prefixes) come from `astro-theme-anu/styles/base.css`. The home-page `LissajousWave.svelte` reads `--at-accent` at runtime so it picks up light/dark theme changes automatically.
 
-- deck pages use `DeckLayout` from `astromotion` (no `<ClientRouter />` --- would conflict with Reveal.js keyboard navigation)
-- decks import their own theme CSS (visually independent from site's `global.css`)
-- `@tailwindcss/vite` in `astro.config.mjs` only processes CSS files containing `@import "tailwindcss"` --- rest of site unaffected
+## Images
+
+Co-located with content (`./hero.avif` in the markdown directory) and validated via the collection's `image()` schema. Theme `Hero`/`Card` components run images through Astro's image pipeline.

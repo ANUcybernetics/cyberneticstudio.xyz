@@ -1,13 +1,17 @@
 ---
-import BaseLayout from "./BaseLayout.astro";
+import type { ImageMetadata } from "astro";
+import ContentLayout from "astro-theme-anu/layouts/ContentLayout.astro";
+import { siteConfig } from "../site-config";
 
 interface Props {
   title: string;
   description: string;
   date: string;
+  hero?: ImageMetadata;
+  heroAlt?: string;
 }
 
-const { title, description, date } = Astro.props;
+const { title, description, date, hero, heroAlt } = Astro.props;
 const formattedDate = new Date(date).toLocaleDateString("en-AU", {
   year: "numeric",
   month: "long",
@@ -15,47 +19,23 @@ const formattedDate = new Date(date).toLocaleDateString("en-AU", {
 });
 ---
 
-<BaseLayout title={title} description={description}>
-  <article class="news-post">
-    <header class="news-header">
-      <h1 class="glow-strong">{title}</h1>
-      <p class="news-meta">
-        <time datetime={date}>{formattedDate}</time>
-      </p>
-    </header>
-    <div class="news-content">
-      <slot />
-    </div>
-  </article>
-</BaseLayout>
+<ContentLayout
+  title={title}
+  description={description}
+  heroImage={hero}
+  heroImageAlt={heroAlt ?? title}
+  {...siteConfig}
+>
+  <p class="news-date">
+    <time datetime={date}>{formattedDate}</time>
+  </p>
+  <slot />
+</ContentLayout>
 
 <style>
-  .news-post {
-    max-width: var(--width-content);
-    margin: 0 auto;
-  }
-
-  .news-header {
-    margin-bottom: var(--space-xl);
-    padding-bottom: var(--space-lg);
-    border-bottom: 1px solid var(--color-border);
-  }
-
-  .news-meta {
-    color: var(--color-fg-muted);
-    margin-top: var(--space-sm);
-  }
-
-  .news-content {
-    line-height: 1.8;
-  }
-
-  .news-content :global(h2) {
-    margin-top: var(--space-xl);
-    margin-bottom: var(--space-md);
-  }
-
-  .news-content :global(p) {
-    margin-bottom: var(--space-md);
+  .news-date {
+    font-size: 0.9375rem;
+    opacity: 0.75;
+    margin: 0 0 1.5rem;
   }
 </style>

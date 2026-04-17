@@ -4,10 +4,6 @@
     ".astro/types.d.ts",
     "**/*"
   ],
-  "exclude": [
-    "dist",
-    "vitest.config.ts",
-    "playwright.config.ts"
-  ],
+  "exclude": ["dist"],
   "compilerOptions": {}
 }

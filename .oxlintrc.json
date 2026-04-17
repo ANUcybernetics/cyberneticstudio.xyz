@@ -1,9 +1,19 @@
 {
   "categories": {
-    "suspicious": "warn",
-    "perf": "warn"
+    "correctness": "error",
+    "suspicious": "error",
+    "perf": "error"
   },
+  "plugins": ["typescript", "import", "unicorn"],
+  "jsPlugins": [
+    "@e18e/eslint-plugin",
+    "eslint-plugin-no-only-tests",
+    "eslint-plugin-perfectionist",
+    "eslint-plugin-unused-imports"
+  ],
   "rules": {
+    "eqeqeq": "error",
+    "no-warning-comments": "warn",
     "no-await-in-loop": "off"
   },
   "ignorePatterns": ["dist", ".astro", "node_modules"]

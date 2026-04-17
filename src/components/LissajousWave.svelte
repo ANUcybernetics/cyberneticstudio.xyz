@@ -7,6 +7,7 @@
   let height = $state(0);
   let animationId: number;
   let reducedMotion = $state(false);
+  let strokeRgb = $state("190, 131, 14");
 
   const LINE_COUNT = 25;
   const FREQ1 = 1.5;
@@ -62,11 +63,11 @@
       const isCentre = distFromCentre < 0.15;
 
       ctx.beginPath();
-      ctx.strokeStyle = `rgba(230, 255, 68, ${alpha})`;
+      ctx.strokeStyle = `rgba(${strokeRgb}, ${alpha})`;
       ctx.lineWidth = lineWidth;
 
       if (isCentre) {
-        ctx.shadowColor = "rgba(230, 255, 68, 0.4)";
+        ctx.shadowColor = `rgba(${strokeRgb}, 0.4)`;
         ctx.shadowBlur = 8;
       } else {
         ctx.shadowColor = "transparent";
@@ -113,9 +114,25 @@
     }
   }
 
+  function readAccentColour() {
+    const raw = getComputedStyle(canvas).getPropertyValue("--at-accent").trim();
+    if (!raw) return;
+    const probe = document.createElement("div");
+    probe.style.color = raw;
+    document.body.appendChild(probe);
+    const resolved = getComputedStyle(probe).color;
+    document.body.removeChild(probe);
+    const match = resolved.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/);
+    if (match) strokeRgb = `${match[1]}, ${match[2]}, ${match[3]}`;
+  }
+
   onMount(() => {
     ctx = canvas.getContext("2d")!;
     reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    readAccentColour();
+
+    const themeObserver = new MutationObserver(readAccentColour);
+    themeObserver.observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
 
     const motionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
     const onMotionChange = (e: MediaQueryListEvent) => {
@@ -140,6 +157,7 @@
     return () => {
       cancelAnimationFrame(animationId);
       observer.disconnect();
+      themeObserver.disconnect();
       motionQuery.removeEventListener("change", onMotionChange);
     };
   });

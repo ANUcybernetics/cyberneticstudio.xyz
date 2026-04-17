@@ -41,4 +41,16 @@ const news = defineCollection({
     }),
 });
 
-export const collections = { projects, news };
+const people = defineCollection({
+  loader: glob({ pattern: "**/index.md", base: "./src/data/people" }),
+  schema: ({ image }) =>
+    z.object({
+      name: z.string(),
+      role: z.string(),
+      photo: image().optional(),
+      photoAlt: z.string().optional(),
+      order: z.number().int().default(999),
+    }),
+});
+
+export const collections = { projects, news, people };
