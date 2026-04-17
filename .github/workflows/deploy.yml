@@ -1,8 +1,8 @@
 name: Deploy to GitHub Pages
 
 on:
-  push:
-    branches: [main]
+  # Auto-deploy on push disabled while the site is being rebuilt on astro-theme-anu.
+  # Re-enable by restoring the `push` trigger.
   workflow_dispatch:
 
 permissions:
