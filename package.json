@@ -11,12 +11,12 @@
     "astro": "astro"
   },
   "dependencies": {
-    "@astrojs/mdx": "^5.0.4",
-    "@astrojs/svelte": "^8.1.0",
-    "astro": "^6.2.1",
+    "@astrojs/mdx": "^5.0.6",
+    "@astrojs/svelte": "^8.1.2",
+    "astro": "^6.4.2",
     "astro-theme-anu": "git+https://gitlab.anu.edu.au/u2548636/astro-theme-anu.git#main&path:/packages/astro-theme-anu",
     "sharp": "^0.34.5",
-    "svelte": "^5.55.5"
+    "svelte": "^5.55.10"
   },
   "pnpm": {
     "onlyBuiltDependencies": [
@@ -26,18 +26,18 @@
   },
   "devDependencies": {
     "@astrojs/check": "^0.9.9",
-    "@e18e/eslint-plugin": "^0.4.1",
-    "@types/node": "^25.6.0",
+    "@e18e/eslint-plugin": "^0.5.0",
+    "@types/node": "^25.9.1",
     "eslint-plugin-no-only-tests": "^3.4.0",
     "eslint-plugin-perfectionist": "^5.9.0",
     "eslint-plugin-unused-imports": "^4.4.1",
-    "node-addon-api": "^8.7.0",
+    "node-addon-api": "^8.8.0",
     "node-gyp": "^12.3.0",
-    "oxfmt": "^0.47.0",
-    "oxlint": "^1.62.0",
+    "oxfmt": "^0.52.0",
+    "oxlint": "^1.67.0",
     "pagefind": "^1.5.2",
     "postcss-html": "^1.8.1",
-    "stylelint": "^17.9.1",
+    "stylelint": "^17.12.0",
     "stylelint-config-standard": "^40.0.0",
     "typescript": "^5.9.3"
   }
